@@ -57,7 +57,7 @@ const PersonalPage = () => {
                 </svg>
               </div>
               <div className="card-text">
-                <span className="card-title">Note</span>
+                <span className="card-title">note</span>
               </div>
             </a>
 
@@ -148,7 +148,7 @@ const PersonalPage = () => {
                 </div>
                 <div className="license-info">
                   <span className="license-name">基本情報技術者試験 (FE)</span>
-                  <span className="license-date">Fundamental Information Technology Engineer</span>
+                  <span className="license-date">2026/02/16 - Fundamental Information Technology Engineer</span>
                 </div>
               </div>
             </div>

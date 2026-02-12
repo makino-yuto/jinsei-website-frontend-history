@@ -219,7 +219,7 @@
   overflow-y: auto;
   max-height: 60vh;
   /* Limit height */
-  padding: 0.5rem;
+  padding: 2rem;
   /* Padding for focus/shadows */
 
   /* Hide Scrollbar */
@@ -256,7 +256,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto;
-  gap: 1.5rem;
+  gap: 3rem;
   width: 100%;
 }
 
@@ -266,58 +266,63 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 1rem;
+  /* Reduced padding */
   border-radius: 28px;
-  /* Softer rounds */
   color: #0f172a;
   text-decoration: none;
-  overflow: hidden;
+  overflow: visible;
+  /* changed from hidden to allow scaling effect */
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  background: #ffffff;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+  background: transparent;
+  /* Removed background */
+  border: none;
+  /* Removed border */
+  box-shadow: none;
+  /* Removed shadow */
 }
 
 .link-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border-color: #cbd5e1;
+  transform: translateY(-5px);
+  /* Keep slight lift or remove? Let's keep slight lift for feedback */
+  box-shadow: none;
+  /* Ensure no shadow on hover */
+  border-color: transparent;
   z-index: 5;
 }
 
 .main-card {
   grid-column: span 2;
-  aspect-ratio: 2/1;
-  /* Wide card */
+  /* aspect-ratio removed */
 }
 
 .sub-card {
   grid-column: span 1;
-  aspect-ratio: 1/1;
-  /* Square */
+  /* aspect-ratio removed */
 }
 
 .card-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  background: #f1f5f9;
+  width: auto;
+  height: auto;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.75rem;
-  transition: transform 0.3s ease, background 0.3s ease;
+  margin-bottom: 0.5rem;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .card-icon svg {
-  width: 36px;
-  height: 36px;
+  width: 58px;
+  height: 58px;
   fill: currentColor;
+  /* filter: drop-shadow(...) removed */
 }
 
 .link-card:hover .card-icon {
-  transform: scale(1.1);
-  background: #e2e8f0;
+  transform: scale(1.15);
+  /* Removed rotate */
+  /* filter: drop-shadow(...) removed */
 }
 
 .card-text {
@@ -345,13 +350,15 @@
 }
 
 .note-icon svg {
-  color: #059669;
+  color: #000000;
+  /* Black */
 }
 
 .x-icon svg {
   color: #000000;
 }
 
+/* ... (keep link-card hover) ... */
 
 /* --- Skills Grid --- */
 .skills-grid {
@@ -584,6 +591,23 @@
 
 /* Responsive */
 @media (max-width: 600px) {
+  .personal-page {
+    height: auto;
+    /* Allow scrolling */
+    min-height: 100dvh;
+    overflow-y: auto;
+    /* Enable scroll */
+    align-items: flex-start;
+    /* Start from top */
+    padding-top: 4rem;
+    /* Space for hamburger */
+  }
+
+  .content-wrapper {
+    max-height: none;
+    /* Remove height limit */
+  }
+
   .logo-text {
     font-size: 3rem;
   }
@@ -594,6 +618,10 @@
 
   .links-bento-grid {
     grid-template-columns: 1fr;
+    width: 100%;
+    /* Ensure full width */
+    margin: 0 auto;
+    /* Center it */
   }
 
   .main-card,
