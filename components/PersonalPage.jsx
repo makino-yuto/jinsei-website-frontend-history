@@ -3,7 +3,7 @@ import './PersonalPage.css';
 
 const PersonalPage = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [activeSection, setActiveSection] = React.useState('links'); // links, profile, qualifications, experience
+  const [activeSection, setActiveSection] = React.useState('links'); // links, profile, skills, projects, career
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -15,6 +15,8 @@ const PersonalPage = () => {
   const menuItems = [
     { id: 'links', label: 'Links' },
     { id: 'profile', label: 'Profile' },
+    { id: 'skills', label: 'Skills' },
+    { id: 'projects', label: 'Projects' },
     { id: 'license', label: 'License' },
     { id: 'career', label: 'Career' },
   ];
@@ -23,7 +25,7 @@ const PersonalPage = () => {
     switch (activeSection) {
       case 'links':
         return (
-          <div className="links-container fade-in">
+          <div className="links-bento-grid fade-in">
             {/* Main Link (YouTube) */}
             <a
               href="https://www.youtube.com/@zinseich"
@@ -42,73 +44,135 @@ const PersonalPage = () => {
               </div>
             </a>
 
-            {/* Sub Links (Note, X) */}
-            <div className="sub-links-row">
-              <a
-                href="https://note.com/asya1793"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="link-card sub-card"
-              >
-                <div className="card-icon note-icon">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M0 .279c4.623 0 10.953-.235 15.498-.117 6.099.156 8.39 2.813 8.468 9.374.077 3.71 0 14.335 0 14.335h-6.598c0-9.296.04-10.83 0-13.759-.078-2.578-.814-3.807-2.795-4.041-2.097-.235-7.975-.04-7.975-.04v17.84H0Z" />
-                  </svg>
-                </div>
-                <div className="card-text">
-                  <span className="card-title">Note</span>
-                </div>
-              </a>
+            {/* Sub Link (Note) */}
+            <a
+              href="https://note.com/asya1793"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link-card sub-card"
+            >
+              <div className="card-icon note-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M0 .279c4.623 0 10.953-.235 15.498-.117 6.099.156 8.39 2.813 8.468 9.374.077 3.71 0 14.335 0 14.335h-6.598c0-9.296.04-10.83 0-13.759-.078-2.578-.814-3.807-2.795-4.041-2.097-.235-7.975-.04-7.975-.04v17.84H0Z" />
+                </svg>
+              </div>
+              <div className="card-text">
+                <span className="card-title">Note</span>
+              </div>
+            </a>
 
-              <a
-                href="https://x.com/yukkuri_asya"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="link-card sub-card"
-              >
-                <div className="card-icon x-icon">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
-                  </svg>
-                </div>
-                <div className="card-text">
-                  <span className="card-title">X (Twitter)</span>
-                </div>
-              </a>
-            </div>
+            {/* Sub Link (X) */}
+            <a
+              href="https://x.com/yukkuri_asya"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link-card sub-card"
+            >
+              <div className="card-icon x-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+                </svg>
+              </div>
+              <div className="card-text">
+                <span className="card-title">X</span>
+              </div>
+            </a>
           </div>
         );
+
       case 'profile':
         return (
           <div className="plain-text-area fade-in">
             <p>
-              初めまして、人生です。<br /><br />
-
-
+              初めまして、人生です。<br />
+              情報学部で学びながら、Web開発やデザインに興味を持っています。<br />
+              <br />
+              シンプルで「かっこいい」ものを作ることが好きです。
             </p>
+
+            <h3 style={{ fontFamily: 'Outfit', marginTop: '2rem', marginBottom: '1rem' }}>Interests</h3>
+            <div className="interests-list">
+              <span className="interest-tag">#WebDev</span>
+              <span className="interest-tag">#React</span>
+              <span className="interest-tag">#Design</span>
+              <span className="interest-tag">#Gadgets</span>
+              <span className="interest-tag">#Gaming</span>
+            </div>
           </div>
         );
+
+      case 'skills':
+        return (
+          <div className="skills-grid fade-in">
+            {['React', 'JavaScript', 'HTML5', 'CSS3', 'Node.js', 'Figma'].map((skill) => (
+              <div key={skill} className="skill-card">
+                <div className="skill-icon">
+                  {/* Simple placeholders or paths could be expanded */}
+                  ⚡
+                </div>
+                <span className="skill-name">{skill}</span>
+              </div>
+            ))}
+          </div>
+        );
+
+      case 'projects':
+        return (
+          <div className="fade-in">
+            <div className="project-card">
+              <div className="project-image">
+                PROJECT 01
+              </div>
+              <div className="project-info">
+                <h3 className="project-title">My Portfolio</h3>
+                <p className="project-desc">
+                  This website was built using React and Vite. Designed with a focus on simplicity, high contrast, and modern aesthetics.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+
       case 'license':
         return (
-          <div className="plain-text-area fade-in">
-            <ul className="plain-list">
-              <li>なし</li>
-            </ul>
+          <div className="fade-in">
+            <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', marginBottom: '1.5rem' }}>Qualifications</h3>
+            <div className="license-grid">
+              <div className="license-card">
+                <div className="license-icon">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                  </svg>
+                </div>
+                <div className="license-info">
+                  <span className="license-name">基本情報技術者試験 (FE)</span>
+                  <span className="license-date">Fundamental Information Technology Engineer</span>
+                </div>
+              </div>
+            </div>
           </div>
         );
+
       case 'career':
         return (
-          <div className="plain-text-area fade-in">
-            <div className="text-block">
-              <p className="year">2024年度 - 202年度</p>
-              <p className="detail">静岡大学 / 情報学部情報科学科</p>
+          <div className="timeline-container fade-in">
+            <div className="timeline-item">
+              <div className="timeline-year">2026 - Current</div>
+              <div className="timeline-content">
+                電気通信大学 / 情報理工学域Ⅰ類
+              </div>
             </div>
-            <div className="text-block">
-              <p className="year">2026年度 - </p>
-              <p className="detail">電気通信大学 / 情報理工学域Ⅰ類</p>
+            <div className="timeline-item">
+              <div className="timeline-year">2024 - 2026</div>
+              <div className="timeline-content">
+                静岡大学 / 情報学部情報科学科
+              </div>
             </div>
           </div>
         );
+
       default:
         return null;
     }
@@ -116,10 +180,10 @@ const PersonalPage = () => {
 
   return (
     <div className="personal-page">
-      {/* Geometric Shapes */}
-      <div className="geo-shape shape-1"></div>
-      <div className="geo-shape shape-2"></div>
-      <div className="geo-shape shape-3"></div>
+      {/* Big Background Text */}
+      <div className="big-bg-text">
+        {activeSection === 'links' ? 'CREATOR' : activeSection.toUpperCase()}
+      </div>
 
       {/* Hamburger Button */}
       <button
@@ -149,15 +213,14 @@ const PersonalPage = () => {
 
       <div className="content-wrapper">
         <header className="header">
-          {/* Logo or Title Placeholder */}
           <div className="logo-placeholder">
             <h1 className="logo-text">
-              <h1 className="logo-text">
-                {activeSection === 'links' && 'Links'}
-                {activeSection === 'profile' && 'Profile'}
-                {activeSection === 'license' && 'License'}
-                {activeSection === 'career' && 'Career'}
-              </h1>
+              {activeSection === 'links' && 'Links'}
+              {activeSection === 'profile' && 'Profile'}
+              {activeSection === 'skills' && 'Skills'}
+              {activeSection === 'projects' && 'Projects'}
+              {activeSection === 'license' && 'License'}
+              {activeSection === 'career' && 'Career'}
             </h1>
           </div>
         </header>
