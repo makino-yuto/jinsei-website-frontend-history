@@ -175,9 +175,9 @@
 }
 
 .menu-item {
-  background: transparent;
-  border: none;
-  box-shadow: none;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   color: #94a3b8;
   font-family: 'Outfit', sans-serif;
   font-size: 2.5rem;
@@ -186,12 +186,18 @@
   cursor: pointer;
   transition: all 0.2s;
   padding: 0;
+  outline: none !important;
 }
 
 .menu-item:hover,
-.menu-item.active {
+.menu-item.active,
+.menu-item:focus {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   color: #0f172a;
   transform: scale(1.05);
+  outline: none !important;
 }
 
 /* --- Header / Logo --- */
@@ -251,13 +257,19 @@
   }
 }
 
+.links-section {
+  margin-top: 3rem;
+  width: 100%;
+}
+
 /* --- Bento Grid (Links) --- */
 .links-bento-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 3rem;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
   width: 100%;
+  flex-wrap: wrap;
+  /* responsive safety */
 }
 
 .link-card {
@@ -291,14 +303,15 @@
   z-index: 5;
 }
 
-.main-card {
-  grid-column: span 2;
-  /* aspect-ratio removed */
+.main-card,
+.sub-card {
+  width: auto;
+  /* aspect-ratio removed, grid-column removed */
 }
 
-.sub-card {
-  grid-column: span 1;
-  /* aspect-ratio removed */
+/* Hide text to show only icons */
+.card-text {
+  display: none;
 }
 
 .card-icon {
@@ -363,15 +376,18 @@
 /* --- Skills Grid --- */
 .skills-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  /* Reduced gap */
   width: 100%;
 }
 
 .skill-card {
   background: #fff;
-  border-radius: 20px;
-  padding: 1.5rem;
+  border-radius: 16px;
+  /* Reduced radius */
+  padding: 1rem;
+  /* Reduced padding */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -382,16 +398,15 @@
   transition: transform 0.3s ease;
 }
 
-.skill-card:hover {
-  transform: translateY(-5px);
-  border-color: #cbd5e1;
-}
+/* ... (keep hover) ... */
 
 .skill-icon {
-  font-size: 2rem;
-  /* Fallback */
-  width: 48px;
-  height: 48px;
+  font-size: 1.5rem;
+  /* Reduced size */
+  width: 40px;
+  /* Reduced size */
+  height: 40px;
+  /* Reduced size */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -400,7 +415,28 @@
 .skill-name {
   font-family: 'Outfit', sans-serif;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  /* Reduced size */
+}
+
+/* ... (skip timeline/projects) ... */
+
+/* --- License & Skills Wrapper --- */
+.license-skills-wrapper {
+  display: flex;
+  gap: 2rem;
+  /* Reduced gap */
+  align-items: flex-start;
+}
+
+.license-section {
+  flex: 1;
+  /* Takes 1 part */
+}
+
+.skills-section {
+  flex: 2;
+  /* Takes 2 parts (Wider) */
 }
 
 
@@ -590,6 +626,30 @@
 }
 
 /* Responsive */
+/* --- License & Skills Wrapper --- */
+.license-skills-wrapper {
+  display: flex;
+  gap: 2rem;
+  /* Reduced gap */
+  align-items: flex-start;
+}
+
+.license-section {
+  flex: 1;
+}
+
+.skills-section {
+  flex: 2;
+  /* Takes more width */
+}
+
+@media (max-width: 768px) {
+  .license-skills-wrapper {
+    flex-direction: column;
+    gap: 3rem;
+  }
+}
+
 @media (max-width: 600px) {
   .personal-page {
     height: auto;

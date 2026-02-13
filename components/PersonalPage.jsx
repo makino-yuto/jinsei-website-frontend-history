@@ -3,7 +3,7 @@ import './PersonalPage.css';
 
 const PersonalPage = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [activeSection, setActiveSection] = React.useState('links'); // links, profile, skills, projects, career
+  const [activeSection, setActiveSection] = React.useState('profile'); // profile, skills, projects, career
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -13,106 +13,104 @@ const PersonalPage = () => {
   };
 
   const menuItems = [
-    { id: 'links', label: 'Links' },
     { id: 'profile', label: 'Profile' },
-    { id: 'skills', label: 'Skills' },
-    { id: 'projects', label: 'Projects' },
     { id: 'license', label: 'License' },
+    { id: 'projects', label: 'Projects' },
     { id: 'career', label: 'Career' },
   ];
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'links':
-        return (
-          <div className="links-bento-grid fade-in">
-            {/* Main Link (YouTube) */}
-            <a
-              href="https://www.youtube.com/@zinseich"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link-card main-card"
-            >
-              <div className="card-icon youtube-icon">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                </svg>
-              </div>
-              <div className="card-text">
-                <span className="card-title">YouTube</span>
-                <span className="card-subtitle">人生ちゃんねる</span>
-              </div>
-            </a>
-
-            {/* Sub Link (Note) */}
-            <a
-              href="https://note.com/asya1793"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link-card sub-card"
-            >
-              <div className="card-icon note-icon">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M0 .279c4.623 0 10.953-.235 15.498-.117 6.099.156 8.39 2.813 8.468 9.374.077 3.71 0 14.335 0 14.335h-6.598c0-9.296.04-10.83 0-13.759-.078-2.578-.814-3.807-2.795-4.041-2.097-.235-7.975-.04-7.975-.04v17.84H0Z" />
-                </svg>
-              </div>
-              <div className="card-text">
-                <span className="card-title">note</span>
-              </div>
-            </a>
-
-            {/* Sub Link (X) */}
-            <a
-              href="https://x.com/yukkuri_asya"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link-card sub-card"
-            >
-              <div className="card-icon x-icon">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
-                </svg>
-              </div>
-              <div className="card-text">
-                <span className="card-title">X</span>
-              </div>
-            </a>
-          </div>
-        );
-
       case 'profile':
         return (
-          <div className="plain-text-area fade-in">
-            <p>
-              初めまして、人生です。<br />
-              情報学部で学びながら、Web開発やデザインに興味を持っています。<br />
-              <br />
-              シンプルで「かっこいい」ものを作ることが好きです。
-            </p>
+          <div className="profile-container fade-in">
+            <div className="plain-text-area">
+              <p>
+                おはようございます。
+                <br />
+              </p>
+            </div>
 
-            <h3 style={{ fontFamily: 'Outfit', marginTop: '2rem', marginBottom: '1rem' }}>Interests</h3>
-            <div className="interests-list">
-              <span className="interest-tag">#WebDev</span>
-              <span className="interest-tag">#React</span>
-              <span className="interest-tag">#Design</span>
-              <span className="interest-tag">#Gadgets</span>
-              <span className="interest-tag">#Gaming</span>
+            <div className="links-section">
+              <div className="links-bento-grid">
+                {/* Main Link (YouTube) */}
+                <a
+                  href="https://www.youtube.com/@zinseich"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link-card main-card"
+                >
+                  <div className="card-icon youtube-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                    </svg>
+                  </div>
+                  {/* card-text hidden by CSS */}
+                  <div className="card-text">
+                    <span className="card-title">YouTube</span>
+                    <span className="card-subtitle">人生ちゃんねる</span>
+                  </div>
+                </a>
+
+                {/* Sub Link (Note) */}
+                <a
+                  href="https://note.com/asya1793"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link-card sub-card"
+                >
+                  <div className="card-icon note-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M0 .279c4.623 0 10.953-.235 15.498-.117 6.099.156 8.39 2.813 8.468 9.374.077 3.71 0 14.335 0 14.335h-6.598c0-9.296.04-10.83 0-13.759-.078-2.578-.814-3.807-2.795-4.041-2.097-.235-7.975-.04-7.975-.04v17.84H0Z" />
+                    </svg>
+                  </div>
+                  <div className="card-text">
+                    <span className="card-title">note</span>
+                  </div>
+                </a>
+
+                {/* Sub Link (X) */}
+                <a
+                  href="https://x.com/yukkuri_asya"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link-card sub-card"
+                >
+                  <div className="card-icon x-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+                    </svg>
+                  </div>
+                  <div className="card-text">
+                    <span className="card-title">X</span>
+                  </div>
+                </a>
+              </div>
             </div>
           </div>
         );
 
-      case 'skills':
+      case 'license':
         return (
-          <div className="skills-grid fade-in">
-            {['React', 'JavaScript', 'HTML5', 'CSS3', 'Node.js', 'Figma'].map((skill) => (
-              <div key={skill} className="skill-card">
-                <div className="skill-icon">
-                  {/* Simple placeholders or paths could be expanded */}
-                  ⚡
+          <div className="fade-in">
+            <div className="license-section">
+              <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', marginBottom: '1.5rem' }}>License</h3>
+              <div className="license-grid">
+                <div className="license-card">
+                  <div className="license-icon">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                      <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                      <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                  </div>
+                  <div className="license-info">
+                    <span className="license-name">基本情報技術者試験 (FE)</span>
+                    <span className="license-date">2026/02/16 - Fundamental Information Technology Engineer</span>
+                  </div>
                 </div>
-                <span className="skill-name">{skill}</span>
               </div>
-            ))}
+            </div>
           </div>
         );
 
@@ -128,28 +126,6 @@ const PersonalPage = () => {
                 <p className="project-desc">
                   This website was built using React and Vite. Designed with a focus on simplicity, high contrast, and modern aesthetics.
                 </p>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'license':
-        return (
-          <div className="fade-in">
-            <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', marginBottom: '1.5rem' }}>Qualifications</h3>
-            <div className="license-grid">
-              <div className="license-card">
-                <div className="license-icon">
-                  <svg viewBox="0 0 24 24">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
-                  </svg>
-                </div>
-                <div className="license-info">
-                  <span className="license-name">基本情報技術者試験 (FE)</span>
-                  <span className="license-date">2026/02/16 - Fundamental Information Technology Engineer</span>
-                </div>
               </div>
             </div>
           </div>
@@ -215,11 +191,9 @@ const PersonalPage = () => {
         <header className="header">
           <div className="logo-placeholder">
             <h1 className="logo-text">
-              {activeSection === 'links' && 'Links'}
               {activeSection === 'profile' && 'Profile'}
-              {activeSection === 'skills' && 'Skills'}
-              {activeSection === 'projects' && 'Projects'}
               {activeSection === 'license' && 'License'}
+              {activeSection === 'projects' && 'Projects'}
               {activeSection === 'career' && 'Career'}
             </h1>
           </div>
