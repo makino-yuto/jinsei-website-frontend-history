@@ -442,48 +442,178 @@
 
 /* --- Timeline (History) --- */
 .timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-left: 1rem;
+  /* Space for markers on left */
   position: relative;
-  padding-left: 2rem;
-  border-left: 3px solid #e2e8f0;
+}
+
+/* Vertical Line Removed - Handled by .timeline-connect in JSX */
+.timeline-container::before {
+  content: none;
+}
+
+.timeline-connect {
+  position: absolute;
+  top: 40px;
+  /* Start at bottom of marker */
+  bottom: -2rem;
+  /* Extend through gap */
+  left: 20px;
+  /* Center of marker */
+  width: 2px;
+  background-color: #e2e8f0;
+  transform: translateX(-50%);
+  z-index: 0;
 }
 
 .timeline-item {
+  display: flex;
+  gap: 1.5rem;
   position: relative;
-  margin-bottom: 2.5rem;
+  z-index: 1;
 }
 
-.timeline-item:last-child {
-  margin-bottom: 0;
-}
-
-.timeline-item::before {
-  content: '';
-  position: absolute;
-  left: -2.6rem;
-  /* Align with border */
-  top: 0.4rem;
-  width: 1rem;
-  height: 1rem;
+.timeline-marker {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #fff;
-  border: 4px solid #3b82f6;
-  /* Blue 500 */
-  box-shadow: 0 0 0 4px #dbeafe;
-  /* Ring */
+  border: 4px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  position: relative;
+  /* Ensure it sits on top of the line */
+  z-index: 2;
 }
 
-.timeline-year {
+.timeline-item:hover .timeline-marker {
+  transform: scale(1.1);
+  border-color: #3b82f6;
+}
+
+.timeline-marker svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+}
+
+.timeline-marker.university {
+  color: #3b82f6;
+}
+
+.timeline-marker.birth {
+  color: #fbbf24;
+  /* Amber 400 */
+}
+
+.timeline-item:last-child .timeline-marker.birth {
+  border-color: #fef3c7;
+}
+
+/* Card Content */
+.timeline-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  /* Horizontal layout */
+  align-items: center;
+  /* Center vertically */
+  gap: 1rem;
+  flex-wrap: wrap;
+  /* Wrap on small screens if needed */
+}
+
+.timeline-content-card {
+  background: #ffffff;
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: auto;
+  /* Let it shrink/grow as needed */
+  flex: 1;
+  /* Take available space, but share with video */
+  min-width: 200px;
+  /* Minimum width before wrapping */
+}
+
+.timeline-item:hover .timeline-content-card {
+  transform: translateX(5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.timeline-extra-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 0;
+  /* Removing left padding since it's horizontal now */
+  flex: 1;
+  /* Take equal or proportional space */
+  min-width: 250px;
+  /* Ensure video is large enough */
+}
+
+.timeline-connector-line {
+  width: 20px;
+  height: 2px;
+  background-color: #cbd5e1;
+  flex-shrink: 0;
+  /* Don't shrink the line */
+}
+
+.video-embed-container {
+  width: 100%;
+  /* Aspect ratio hack relies on width, so keep this 100% of the flex item */
+  padding-bottom: 56.25%;
+  /* 16:9 Aspect Ratio */
+  height: 0;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.video-embed-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.timeline-period {
   font-family: 'Outfit', sans-serif;
-  font-weight: 800;
-  font-size: 1.25rem;
-  color: #0f172a;
-  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.05em;
 }
 
-.timeline-content {
-  color: #334155;
+.timeline-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.25rem 0;
+}
+
+.timeline-desc {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 0;
   font-weight: 500;
-  line-height: 1.6;
 }
 
 /* --- Projects --- */
@@ -494,6 +624,9 @@
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
   border: 1px solid #f1f5f9;
   transition: transform 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .project-card:hover {
@@ -503,25 +636,51 @@
 .project-image {
   width: 100%;
   height: 200px;
-  background: #f1f5f9;
+  background: #000;
+  /* Black background for contrast */
   display: flex;
+  /* Keep flex to center if loading or fallback */
   align-items: center;
   justify-content: center;
-  font-family: 'Outfit', sans-serif;
-  font-weight: 900;
-  font-size: 2rem;
-  color: #cbd5e1;
+  overflow: hidden;
+}
+
+.project-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.project-card:hover .project-image img {
+  transform: scale(1.05);
 }
 
 .project-info {
   padding: 1.5rem;
 }
 
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
 .project-title {
   font-family: 'Outfit', sans-serif;
   font-weight: 800;
   font-size: 1.25rem;
-  margin-bottom: 0.5rem;
+  margin: 0;
+  /* Apply margin to header instead */
+}
+
+.project-date {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
 }
 
 .project-desc {

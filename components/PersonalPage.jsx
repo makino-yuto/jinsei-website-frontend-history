@@ -1,5 +1,6 @@
 import React from 'react';
 import './PersonalPage.css';
+import reflexImage from '../assets/thumbnail-reflex.png';
 
 const PersonalPage = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -91,61 +92,129 @@ const PersonalPage = () => {
         );
 
       case 'license':
+        const licenseData = [
+          {
+            period: '2026/02/16',
+            title: '基本情報技術者試験 (FE)',
+            type: 'university',
+            embedVideo: "https://www.youtube.com/embed/wTgP6t6sKWk"
+          }
+        ];
+
         return (
-          <div className="fade-in">
-            <div className="license-section">
-              <h3 style={{ fontFamily: 'Outfit', fontSize: '1.25rem', marginBottom: '1.5rem' }}>License</h3>
-              <div className="license-grid">
-                <div className="license-card">
-                  <div className="license-icon">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                      <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                      <polyline points="7 3 7 8 15 8"></polyline>
-                    </svg>
+          <div className="timeline-container fade-in">
+            {licenseData.map((item, index) => (
+              <div className="timeline-item" key={index}>
+                <div className={`timeline-marker ${item.type}`}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z" />
+                    <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                  </svg>
+                </div>
+                {index !== licenseData.length - 1 && <div className="timeline-connect" />}
+
+                <div className="timeline-content-wrapper">
+                  <div className="timeline-content-card">
+                    <span className="timeline-period">{item.period}</span>
+                    <h3 className="timeline-title">{item.title}</h3>
+                    {item.desc && <p className="timeline-desc">{item.desc}</p>}
                   </div>
-                  <div className="license-info">
-                    <span className="license-name">基本情報技術者試験 (FE)</span>
-                    <span className="license-date">2026/02/16 - Fundamental Information Technology Engineer</span>
-                  </div>
+
+                  {item.embedVideo && (
+                    <div className="timeline-extra-content">
+                      <div className="timeline-connector-line"></div>
+                      <div className="video-embed-container">
+                        <iframe
+                          src={item.embedVideo}
+                          title="YouTube video player"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         );
 
       case 'projects':
         return (
           <div className="fade-in">
-            <div className="project-card">
+            <a
+              href="https://reflex.jinsei-makino.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="project-card"
+            >
               <div className="project-image">
-                PROJECT 01
+                <img src={reflexImage} alt="Reflex Test" />
               </div>
               <div className="project-info">
-                <h3 className="project-title">My Portfolio</h3>
+                <div className="project-header">
+                  <h3 className="project-title">反射神経テスト</h3>
+                  <span className="project-date">release 2026.02.18</span>
+                </div>
                 <p className="project-desc">
-                  This website was built using React and Vite. Designed with a focus on simplicity, high contrast, and modern aesthetics.
+                  用いたシンプルかつ高精度な反射神経テスト。<br />
+                  視覚/聴覚を選択可能。
                 </p>
               </div>
-            </div>
+            </a>
           </div>
         );
 
       case 'career':
+        const careerData = [
+          {
+            year: '2026',
+            period: '26/04/01 - Current',
+            title: '電気通信大学',
+            desc: '情報理工学域Ⅰ類',
+            type: 'university'
+          },
+          {
+            year: '2024',
+            period: '24/04/01 - 26/03/31',
+            title: '静岡大学',
+            desc: '情報学部情報科学科',
+            type: 'university'
+          },
+          {
+            year: '2005',
+            period: '2005/01/22',
+            title: '愛知県春日井市',
+            desc: '生誕',
+            type: 'birth'
+          },
+        ];
+
         return (
           <div className="timeline-container fade-in">
-            <div className="timeline-item">
-              <div className="timeline-year">2026 - Current</div>
-              <div className="timeline-content">
-                電気通信大学 / 情報理工学域Ⅰ類
+            {careerData.map((item, index) => (
+              <div className="timeline-item" key={index}>
+                <div className={`timeline-marker ${item.type}`}>
+                  {item.type === 'university' && (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z" />
+                      <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                    </svg>
+                  )}
+                  {item.type === 'birth' && (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  )}
+                </div>
+                {index !== careerData.length - 1 && <div className="timeline-connect" />}
+                <div className="timeline-content-card">
+                  <span className="timeline-period">{item.period}</span>
+                  <h3 className="timeline-title">{item.title}</h3>
+                  <p className="timeline-desc">{item.desc}</p>
+                </div>
               </div>
-            </div>
-            <div className="timeline-item">
-              <div className="timeline-year">2024 - 2026</div>
-              <div className="timeline-content">
-                静岡大学 / 情報学部情報科学科
-              </div>
-            </div>
+            ))}
           </div>
         );
 
@@ -204,7 +273,7 @@ const PersonalPage = () => {
         </main>
 
         <footer className="footer">
-          <p>&copy; 2026 yukkuri_asya. All Rights Reserved.</p>
+          <p>&copy; 2026 Makino Yuto. All rights reserved.</p>
         </footer>
       </div>
     </div>
