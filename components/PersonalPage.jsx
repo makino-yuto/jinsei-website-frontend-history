@@ -97,7 +97,7 @@ const PersonalPage = () => {
             period: '2026/02/16',
             title: '基本情報技術者試験 (FE)',
             type: 'university',
-            embedVideo: "https://www.youtube.com/embed/wTgP6t6sKWk"
+            embedVideo: "https://www.youtube.com"
           }
         ];
 
