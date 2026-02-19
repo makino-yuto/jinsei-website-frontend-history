@@ -10,36 +10,42 @@
   font-weight: 400;
 
   color-scheme: light;
-  color: #0f172a;
-  /* Slate 900 - High Contrast Text */
-  background-color: #f8fafc;
-  /* Slate 50 - Bright Background */
+  color: #1e3a8a;
+  /* Blue 900 - Deep Navy for text */
+
+  /* Background - Vibrant Pastel Blue Theme */
+  background-color: #e0f2fe;
+  /* Sky 100 */
+  background-image: linear-gradient(120deg, #e0f2fe 0%, #bae6fd 50%, #e0f2fe 100%);
+  /* More visible blue gradient */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --primary-color: #2563eb;
-  /* Blue 600 */
+  --primary-color: #38bdf8;
+  /* Sky 400 - Pastel yet vibrant blue */
 }
 
 a {
   font-weight: 600;
-  color: #2563eb;
+  color: #0ea5e9;
+  /* Sky 500 */
   text-decoration: inherit;
   transition: color 0.3s ease;
 }
 
 a:hover {
-  color: #1d4ed8;
+  color: #0284c7;
+  /* Sky 600 */
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: #e0f2fe;
   overflow-x: hidden;
   /* Prevent horizontal scroll only */
 }

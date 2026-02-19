@@ -16,7 +16,7 @@ const PersonalPage = () => {
   const menuItems = [
     { id: 'profile', label: 'Profile' },
     { id: 'license', label: 'License' },
-    { id: 'projects', label: 'Projects' },
+    { id: 'works', label: 'Works' },
     { id: 'career', label: 'Career' },
   ];
 
@@ -97,7 +97,7 @@ const PersonalPage = () => {
             period: '2026/02/16',
             title: '基本情報技術者試験 (FE)',
             type: 'university',
-            embedVideo: "https://www.youtube.com"
+            embedVideo: "https://www.youtube.com/embed/z4AopNHGv3Q"
           }
         ];
 
@@ -139,7 +139,7 @@ const PersonalPage = () => {
           </div>
         );
 
-      case 'projects':
+      case 'works':
         return (
           <div className="fade-in">
             <a
@@ -225,10 +225,7 @@ const PersonalPage = () => {
 
   return (
     <div className="personal-page">
-      {/* Big Background Text */}
-      <div className="big-bg-text">
-        {activeSection === 'links' ? 'CREATOR' : activeSection.toUpperCase()}
-      </div>
+
 
       {/* Hamburger Button */}
       <button
@@ -262,7 +259,7 @@ const PersonalPage = () => {
             <h1 className="logo-text">
               {activeSection === 'profile' && 'Profile'}
               {activeSection === 'license' && 'License'}
-              {activeSection === 'projects' && 'Projects'}
+              {activeSection === 'works' && 'Works'}
               {activeSection === 'career' && 'Career'}
             </h1>
           </div>
