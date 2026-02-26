@@ -47,6 +47,7 @@ const PersonalPage = () => {
           <a href="#links">[ LINKS ]</a>
           <a href="#license">[ LICENSE ]</a>
           <a href="#works">[ WORKS ]</a>
+          <span className="nav-break"></span>
           <a href="#aboutme">[ ABOUT ME ]</a>
           <a href="#career">[ CAREER ]</a>
         </nav>
@@ -158,13 +159,16 @@ const PersonalPage = () => {
               <img src={profileIcon} alt="Profile Icon" />
             </div>
             <div className="aboutme-text">
+              <h3 className="aboutme-name" style={{ fontSize: "1.2rem", fontWeight: "700", color: "#0f213b", marginTop: 0, marginBottom: "1rem" }}>makino</h3>
               <p className="biography" style={{ color: "#4f6f8f", lineHeight: "1.8", margin: 0 }}>
-                愛知県春日井市に生まれる。<br />
-                第一志望に不合格となり、一年の浪人を経て後期入試で静岡大学へ入学。<br />
-                その後、第一志望であった電気通信大学へ三年次編入学。<br />
+                人生名義でYouTube、X、noteなどを運営。<br />
+                愛知県春日井市生まれ。<br />
+                公立の小・中・高等学校を卒業。<br />
+                第一志望に届かず、一年の浪人を経て静岡大学へ進学。<br />
+                のちに第一志望であった電気通信大学へ三年次編入学。<br />
                 <br />
                 趣味はピアノと自転車。<br />
-                2028年富士ヒルプラチナを目標に日々トレーニング中。
+                2028年の富士ヒルクライムでプラチナリング獲得を目標に、日々トレーニング中。
               </p>
             </div>
           </div>
