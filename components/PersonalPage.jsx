@@ -13,7 +13,7 @@ const PersonalPage = () => {
     },
     {
       period: '2024/07/25',
-      title: 'TOEIC® Listening & Reading IPテスト 400点',
+      title: 'TOEIC® Listening & Reading IPテスト',
       type: 'license',
       desc: '5月中にYouTubeにて更新予定'
     }
