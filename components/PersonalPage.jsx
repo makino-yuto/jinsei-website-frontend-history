@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './PersonalPage.css';
 import reflexImage from '../assets/thumbnail-reflex.png';
 import profileIcon from '../assets/CtwKBnls_400x400.jpg';
@@ -25,6 +26,18 @@ const PersonalPage = () => {
       period: '2005/01/22',
       title: '愛知県春日井市',
       desc: '誕生'
+    },
+    {
+      year: '2020',
+      period: '2020/04/01 - 2023/03/31',
+      title: '愛知県立春日井南高等学校',
+      desc: ''
+    },
+    {
+      year: '2023',
+      period: '2023/04/01 - 2024/03/31',
+      title: '浪人',
+      desc: ''
     },
     {
       year: '2024',
@@ -165,11 +178,34 @@ const PersonalPage = () => {
                 愛知県春日井市生まれ。<br />
                 公立の小・中・高等学校を卒業。<br />
                 第一志望に届かず、一年の浪人を経て静岡大学へ進学。<br />
-                のちに第一志望であった電気通信大学へ三年次編入学。<br />
-                <br />
-                趣味はピアノと自転車。<br />
-                2028年の富士ヒルクライムでプラチナリング獲得を目標に、日々トレーニング中。
+                のちに第一志望であった電気通信大学へ三年次編入学。
               </p>
+
+              <h3 className="section-title" style={{ marginTop: "2.5rem" }}>HOBBY</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                <Link to="/piano" className="rugged-link">
+                  <div className="link-content">
+                    <span className="link-label">ピアノ</span>
+                    <span className="link-desc">ミスチルなどをよく弾きます。</span>
+                  </div>
+                  <span className="link-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" style={{ width: '20px', height: '20px' }}>
+                      <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                </Link>
+                <Link to="/bicycle" className="rugged-link">
+                  <div className="link-content">
+                    <span className="link-label">自転車</span>
+                    <span className="link-desc">2028年の富士ヒルクライムでプラチナリング獲得を目標に、日々トレーニング中。</span>
+                  </div>
+                  <span className="link-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" style={{ width: '20px', height: '20px' }}>
+                      <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                </Link>
+              </div>
             </div>
           </div>
         </section>
