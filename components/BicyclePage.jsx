@@ -1,13 +1,19 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './PersonalPage.css';
 
 const BicyclePage = () => {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     return (
         <div className="rugged-page">
             <header className="rugged-header">
                 <nav className="rugged-nav">
-                    <Link to="/">[ HOME ]</Link>
+                    <a href="/" onClick={(e) => { e.preventDefault(); navigate(-1); }}>[ HOME ]</a>
                 </nav>
             </header>
 

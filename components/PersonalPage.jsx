@@ -53,16 +53,31 @@ const PersonalPage = () => {
     },
   ];
 
+  const scrollToSection = (e, id) => {
+    e.preventDefault();
+    const element = document.getElementById(id);
+    if (element) {
+      const headerOffset = 60; // adjust for sticky header height
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    }
+  };
+
   return (
     <div className="rugged-page">
       <header className="rugged-header">
         <nav className="rugged-nav">
-          <a href="#links">[ LINKS ]</a>
-          <a href="#license">[ LICENSE ]</a>
-          <a href="#works">[ WORKS ]</a>
+          <a href="#links" onClick={(e) => scrollToSection(e, 'links')}>[ LINKS ]</a>
+          <a href="#license" onClick={(e) => scrollToSection(e, 'license')}>[ LICENSE ]</a>
+          <a href="#works" onClick={(e) => scrollToSection(e, 'works')}>[ WORKS ]</a>
           <span className="nav-break"></span>
-          <a href="#aboutme">[ ABOUT ME ]</a>
-          <a href="#career">[ CAREER ]</a>
+          <a href="#aboutme" onClick={(e) => scrollToSection(e, 'aboutme')}>[ ABOUT ME ]</a>
+          <a href="#career" onClick={(e) => scrollToSection(e, 'career')}>[ CAREER ]</a>
         </nav>
       </header>
 
