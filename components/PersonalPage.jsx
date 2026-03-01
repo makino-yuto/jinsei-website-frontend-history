@@ -13,10 +13,22 @@ const PersonalPage = () => {
       embedVideo: "https://www.youtube.com/embed/z4AopNHGv3Q"
     },
     {
-      period: '2024/07/25',
-      title: 'TOEIC® Listening & Reading IPテスト',
+      period: '2026/04/19',
+      title: 'TOEIC® Listening & Reading',
       type: 'license',
-      desc: '5月中にYouTubeにて更新予定'
+      planned: true
+    },
+    {
+      period: '2026/11',
+      title: '応用情報技術者 (AP)',
+      type: 'license',
+      planned: true
+    },
+    {
+      period: '2027/02',
+      title: 'データベーススペシャリスト',
+      type: 'license',
+      planned: true
     }
   ];
 
@@ -139,10 +151,13 @@ const PersonalPage = () => {
           <h2 className="section-title">LICENSE</h2>
           <div className="section-content">
             {licenseData.map((item, index) => (
-              <div key={index} className="rugged-card">
+              <div key={index} className={`rugged-card ${item.planned ? 'planned-card' : ''}`}>
                 <div className="card-header">
                   <span className="card-period">{item.period}</span>
-                  <h3 className="card-title">{item.title}</h3>
+                  <h3 className="card-title">
+                    {item.title}
+                    {item.planned && <span style={{ fontSize: '0.8rem', fontWeight: 'normal', color: '#5b84a6', marginLeft: '0.5rem' }}>(受験予定)</span>}
+                  </h3>
                 </div>
                 {item.desc && (
                   <p className="card-desc" style={{ marginBottom: "0.5rem" }}>{item.desc}</p>
@@ -212,7 +227,9 @@ const PersonalPage = () => {
                 <Link to="/bicycle" className="rugged-link">
                   <div className="link-content">
                     <span className="link-label">自転車</span>
-                    <span className="link-desc">2028年の富士ヒルクライムでプラチナリング獲得を目標に、日々トレーニング中。</span>
+                    <span className="link-desc">
+                      2028年の富士ヒルクライムでプラチナリング獲得を目標に、日々トレーニング中。
+                    </span>
                   </div>
                   <span className="link-arrow">
                     <svg viewBox="0 0 24 24" fill="none" style={{ width: '20px', height: '20px' }}>

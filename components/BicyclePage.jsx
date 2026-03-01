@@ -12,11 +12,24 @@ const BicyclePage = () => {
     }, []);
 
     const powerData = [
-        { month: '25/10', FTP: 2.721 },
-        { month: '25/11', FTP: 3.369 },
-        { month: '25/12', FTP: 3.369 },
-        { month: '26/01', FTP: 3.369 },
-        { month: '26/02', FTP: 3.750 },
+        { date: '2025/10/19', FTP: 2.721 },
+        { date: '2025/11/21', FTP: 3.369 },
+        { date: '2026/02/26', FTP: 3.750 },
+    ];
+
+    const peakPowerData = [
+        { time: '5 s', W: 665, Wkg: 10.08, date: '2025/12/2' },
+        { time: '15 s', W: 586, Wkg: 8.88, date: '2025/12/16' },
+        { time: '30 s', W: 373, Wkg: 5.83, date: '2026/1/10' },
+        { time: '1 min', W: 348, Wkg: 5.27, date: '2025/12/16' },
+        { time: '3 min', W: 266, Wkg: 4.11, date: '2025/12/20' },
+        { time: '5 min', W: 262, Wkg: 4.09, date: '2026/2/26' },
+        { time: '10 min', W: 258, Wkg: 4.03, date: '2026/2/26' },
+        { time: '12 min', W: 257, Wkg: 4.02, date: '2026/2/26' },
+        { time: '15 min', W: 255, Wkg: 3.98, date: '2026/2/26' },
+        { time: '20 min', W: 252, Wkg: 3.94, date: '2026/2/26' },
+        { time: '30 min', W: 210, Wkg: 3.22, date: '2025/12/8' },
+        { time: '40 min', W: 205, Wkg: 3.19, date: '2025/12/8' },
     ];
 
     const tournaments = [];
@@ -43,15 +56,30 @@ const BicyclePage = () => {
         }
     };
 
+    const CustomPeakTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            const data = payload[0].payload;
+            return (
+                <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', border: '1px solid #c8def2', borderRadius: '4px', padding: '10px' }}>
+                    <p style={{ margin: 0, fontWeight: 'bold', color: '#0f213b' }}>{label}</p>
+                    <p style={{ margin: 0, color: '#0f213b' }}>{data.Wkg} W/kg ({data.W} W)</p>
+                    <p style={{ margin: 0, color: '#5b84a6', fontSize: '0.8rem' }}>{data.date}</p>
+                </div>
+            );
+        }
+        return null;
+    };
+
     return (
         <div className="rugged-page">
             <header className="rugged-header">
                 <nav className="rugged-nav">
-                    <a href="/" onClick={(e) => { e.preventDefault(); navigate(-1); }} style={{ position: 'absolute', left: '1.5rem', margin: 0 }}>[ HOME ]</a>
+                    <a href="/" onClick={(e) => { e.preventDefault(); navigate(-1); }} className="back-home-link">[ HOME ]</a>
                     <a href="#equipment" onClick={(e) => scrollToSection(e, 'equipment')}>[ GEAR ]</a>
                     <a href="#results" onClick={(e) => scrollToSection(e, 'results')}>[ RESULTS ]</a>
+                    <span className="nav-break"></span>
                     <a href="#videos" onClick={(e) => scrollToSection(e, 'videos')}>[ VIDEOS ]</a>
-                    <a href="#power" onClick={(e) => scrollToSection(e, 'power')}>[ CURRENT POWER(PWR) ]</a>
+                    <a href="#power" onClick={(e) => scrollToSection(e, 'power')}>[ PWR ]</a>
                 </nav>
             </header>
 
@@ -61,6 +89,7 @@ const BicyclePage = () => {
                     <div className="section-content">
                         <div className="aboutme-text">
                             <p className="biography" style={{ color: "#4f6f8f", lineHeight: "1.8", margin: 0 }}>
+                                レース動画に感化され、2025年10月19日からトレーニングを始める。<br />
                                 2028年の富士ヒルクライムでプラチナリング獲得を目標に、日々トレーニング中。
                             </p>
                         </div>
@@ -174,20 +203,34 @@ const BicyclePage = () => {
                 </section>
 
                 <section id="power" className="rugged-section">
-                    <h2 className="section-title">CURRENT POWER(PWR)</h2>
-                    <div className="section-content" style={{ display: 'block' }}>
-                        <div className="rugged-card" style={{ height: '300px', padding: '1.5rem 1rem 1rem 0' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={powerData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <h2 className="section-title">PWR</h2>
+                    <div className="section-content" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                        <div className="rugged-card chart-wrapper" style={{ height: '320px', padding: '1.5rem 1rem 1rem 0' }}>
+                            <h3 style={{ margin: '0 0 1rem 1.5rem', fontSize: '0.9rem', color: '#5b84a6' }}>FTP</h3>
+                            <ResponsiveContainer width="100%" height="85%">
+                                <LineChart data={powerData} margin={{ top: 30, right: 30, left: -20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#c8def2" />
-                                    <XAxis dataKey="month" stroke="#5b84a6" fontSize={12} />
-                                    <YAxis stroke="#5b84a6" fontSize={12} domain={['auto', 'auto']} />
+                                    <XAxis dataKey="date" stroke="#5b84a6" fontSize={12} />
+                                    <YAxis stroke="#5b84a6" fontSize={12} domain={['auto', 'auto']} label={{ value: 'W/kg', position: 'top', offset: 15, fill: '#5b84a6', fontSize: 12, dx: 15 }} />
                                     <Tooltip
                                         contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', border: '1px solid #c8def2', borderRadius: '4px' }}
                                         labelStyle={{ color: '#0f213b', fontWeight: 'bold' }}
                                         formatter={(value) => [`${value} W/kg`, 'FTP(W/kg)']}
                                     />
-                                    <Line type="monotone" dataKey="FTP" stroke="#0f213b" strokeWidth={2} activeDot={{ r: 6 }} name="FTP (W/kg)" />
+                                    <Line type="linear" dataKey="FTP" stroke="#0f213b" strokeWidth={2} activeDot={{ r: 6 }} name="FTP (W/kg)" />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+
+                        <div className="rugged-card chart-wrapper" style={{ height: '320px', padding: '1.5rem 1rem 1rem 0' }}>
+                            <h3 style={{ margin: '0 0 1rem 1.5rem', fontSize: '0.9rem', color: '#5b84a6' }}>PEAK POWER</h3>
+                            <ResponsiveContainer width="100%" height="85%">
+                                <LineChart data={peakPowerData} margin={{ top: 30, right: 30, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#c8def2" />
+                                    <XAxis dataKey="time" stroke="#5b84a6" fontSize={12} />
+                                    <YAxis stroke="#5b84a6" fontSize={12} domain={[0, 'auto']} label={{ value: 'W/kg', position: 'top', offset: 15, fill: '#5b84a6', fontSize: 12, dx: 15 }} />
+                                    <Tooltip content={<CustomPeakTooltip />} />
+                                    <Line type="linear" dataKey="Wkg" stroke="#0f213b" strokeWidth={2} activeDot={{ r: 6 }} name="W/kg" />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
