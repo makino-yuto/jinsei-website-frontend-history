@@ -16,17 +16,22 @@ const BicyclePage = () => {
 
     useEffect(() => {
         const fetchTraining = async () => {
-            const { data, error } = await supabase.from('training_logs').select('*');
-            if (error) {
-                console.error("Supabase error:", error);
-                return;
-            }
-            if (data) {
-                const map = {};
-                data.forEach(item => {
-                    map[item.date] = item.content;
-                });
-                setTrainingData(map);
+            if (!supabase) return;
+            try {
+                const { data, error } = await supabase.from('training_logs').select('*');
+                if (error) {
+                    console.error("Supabase error:", error);
+                    return;
+                }
+                if (data) {
+                    const map = {};
+                    data.forEach(item => {
+                        map[item.date] = item.content;
+                    });
+                    setTrainingData(map);
+                }
+            } catch (err) {
+                console.error("Failed to fetch training:", err);
             }
         };
         fetchTraining();
