@@ -9,9 +9,9 @@ const PianoPage = () => {
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
-
-    const videos = [];
-
+    const videos = [
+        { id: 'U0YUvDhSnFo', title: 'Mr.Children/終わりなき旅', date: '2026/03/07' }
+    ];
     const scrollToSection = (e, id) => {
         e.preventDefault();
         const element = document.getElementById(id);
@@ -64,13 +64,19 @@ const PianoPage = () => {
                             <div style={{ position: 'relative', overflow: 'hidden', maxHeight: videosExpanded ? '5000px' : '350px', transition: 'max-height 0.4s ease-in-out' }}>
                                 <div className="section-content" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: videosExpanded ? '1rem' : '4rem' }}>
                                     {videos.map((v, idx) => (
-                                        <div key={idx} className="video-container" style={{ margin: 0 }}>
-                                            <iframe
-                                                src={`https://www.youtube.com/embed/${v.id}?origin=${window.location.origin}`}
-                                                title={v.title}
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                allowFullScreen
-                                            ></iframe>
+                                        <div key={idx} className="rugged-card">
+                                            <div className="card-header">
+                                                <span className="card-period">{v.date}</span>
+                                                <h3 className="card-title">{v.title}</h3>
+                                            </div>
+                                            <div className="video-container">
+                                                <iframe
+                                                    src={`https://www.youtube.com/embed/${v.id}?origin=${window.location.origin}`}
+                                                    title={v.title}
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                    allowFullScreen
+                                                ></iframe>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

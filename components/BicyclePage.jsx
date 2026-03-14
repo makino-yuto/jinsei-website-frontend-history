@@ -1,11 +1,115 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { supabase } from '../supabaseClient';
 import './PersonalPage.css';
 
 const BicyclePage = () => {
     const navigate = useNavigate();
     const [videosExpanded, setVideosExpanded] = useState(false);
+
+    // Calendar State
+    const [calendarDate, setCalendarDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState("");
+
+    const [trainingData, setTrainingData] = useState({});
+
+    useEffect(() => {
+        const fetchTraining = async () => {
+            const { data, error } = await supabase.from('training_logs').select('*');
+            if (error) {
+                console.error("Supabase error:", error);
+                return;
+            }
+            if (data) {
+                const map = {};
+                data.forEach(item => {
+                    map[item.date] = item.content;
+                });
+                setTrainingData(map);
+            }
+        };
+        fetchTraining();
+    }, []);
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [editContent, setEditContent] = useState("");
+
+    const handleEditClick = () => {
+        setEditContent(trainingData[selectedDate] || "");
+        setIsEditing(true);
+    };
+
+    const handleSaveClick = async () => {
+        const password = prompt("保存する場合はパスワードを入力してください", "");
+        if (password !== 'makino') {
+            if (password !== null) alert("パスワードが違います");
+            return;
+        }
+
+        const newData = { ...trainingData };
+        try {
+            if (editContent.trim() === "") {
+                delete newData[selectedDate];
+                const { error } = await supabase.from('training_logs').delete().eq('date', selectedDate);
+                if (error) throw error;
+            } else {
+                newData[selectedDate] = editContent;
+                const { error } = await supabase.from('training_logs').upsert({ date: selectedDate, content: editContent });
+                if (error) throw error;
+            }
+
+            setTrainingData(newData);
+            setIsEditing(false);
+        } catch (err) {
+            console.error("Save error:", err);
+            alert("保存に失敗しました。");
+        }
+    };
+
+    useEffect(() => {
+        setIsEditing(false);
+    }, [selectedDate]);
+
+    const handlePrevMonth = () => {
+        setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1, 1));
+    };
+
+    const handleNextMonth = () => {
+        setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1));
+    };
+
+    const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
+    const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
+
+    const renderCalendarDays = () => {
+        const year = calendarDate.getFullYear();
+        const month = calendarDate.getMonth();
+        const daysInMonth = getDaysInMonth(year, month);
+        const firstDay = getFirstDayOfMonth(year, month);
+        const days = [];
+
+        for (let i = 0; i < firstDay; i++) {
+            days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+        }
+
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+            const hasTraining = !!trainingData[dateStr];
+            const isSelected = dateStr === selectedDate;
+            days.push(
+                <div
+                    key={i}
+                    className={`calendar-day ${hasTraining ? 'has-training' : ''} ${isSelected ? 'selected' : ''}`}
+                    onClick={() => setSelectedDate(dateStr)}
+                >
+                    <span className="day-number">{i}</span>
+                    {hasTraining && <span className="training-dot"></span>}
+                </div>
+            );
+        }
+        return days;
+    };
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -80,6 +184,7 @@ const BicyclePage = () => {
                     <span className="nav-break"></span>
                     <a href="#videos" onClick={(e) => scrollToSection(e, 'videos')}>[ VIDEOS ]</a>
                     <a href="#power" onClick={(e) => scrollToSection(e, 'power')}>[ PWR ]</a>
+                    <a href="#training" onClick={(e) => scrollToSection(e, 'training')}>[ TRAINING ]</a>
                 </nav>
             </header>
 
@@ -234,6 +339,72 @@ const BicyclePage = () => {
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
+                    </div>
+                </section>
+
+                <section id="training" className="rugged-section">
+                    <h2 className="section-title">TRAINING</h2>
+                    <div className="section-content" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+
+                        <div className="calendar-container">
+                            <div className="calendar-header">
+                                <button className="calendar-nav-btn" onClick={handlePrevMonth}>&lt;</button>
+                                <span>{calendarDate.getFullYear()}年 {calendarDate.getMonth() + 1}月</span>
+                                <button className="calendar-nav-btn" onClick={handleNextMonth}>&gt;</button>
+                            </div>
+                            <div className="calendar-grid day-headers">
+                                <div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>
+                            </div>
+                            <div className="calendar-grid">
+                                {renderCalendarDays()}
+                            </div>
+                        </div>
+
+                        <div className="training-details-container">
+                            {selectedDate ? (
+                                <div className="training-details-card" style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <div className="training-date" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span>{selectedDate.replace(/-/g, '/')}</span>
+                                        {!isEditing && (
+                                            <button
+                                                onClick={handleEditClick}
+                                                style={{ background: 'none', border: '1px solid #c8def2', borderRadius: '4px', cursor: 'pointer', color: '#5b84a6', padding: '0.2rem 0.6rem', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                                                編集
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="training-desc" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                        {isEditing ? (
+                                            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                                                <textarea
+                                                    value={editContent}
+                                                    onChange={(e) => setEditContent(e.target.value)}
+                                                    placeholder="トレーニング内容を入力..."
+                                                    style={{ width: '100%', flex: 1, minHeight: '150px', padding: '0.5rem', borderRadius: '4px', border: '1px solid #a8cced', outline: 'none', resize: 'vertical', fontFamily: 'inherit', color: '#0f213b', background: 'rgba(255, 255, 255, 0.9)' }}
+                                                />
+                                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
+                                                    <button onClick={() => setIsEditing(false)} style={{ background: 'none', border: '1px solid #c8def2', color: '#5b84a6', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>キャンセル</button>
+                                                    <button onClick={handleSaveClick} style={{ background: '#5b84a6', border: 'none', color: 'white', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>保存</button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            trainingData[selectedDate] ? (
+                                                trainingData[selectedDate].split('\n').map((line, i) => (
+                                                    <p key={i} style={{ margin: '0 0 0.5rem 0' }}>{line}</p>
+                                                ))
+                                            ) : (
+                                                <p>この日のトレーニング記録はありません。</p>
+                                            )
+                                        )}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="training-details-card empty-state">
+                                    カレンダーから日付を選択してください。
+                                </div>
+                            )}
+                        </div>
+
                     </div>
                 </section>
             </main>
