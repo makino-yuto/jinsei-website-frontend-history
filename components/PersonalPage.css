@@ -566,6 +566,9 @@ body {
   padding: 1.5rem;
   flex: 1;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 420px;
 }
 
 .training-details-card.empty-state {
@@ -585,10 +588,14 @@ body {
   font-size: 1.2rem;
   border-bottom: 2px solid #e3effa;
   padding-bottom: 0.5rem;
+  flex-shrink: 0;
 }
 
 .training-desc {
   color: #4f6f8f;
   line-height: 1.8;
   font-size: 0.95rem;
+  overflow-y: auto;
+  flex: 1;
 }
+

@@ -116,6 +116,13 @@ const BicyclePage = () => {
                 </div>
             );
         }
+
+        // 月によってカレンダーの高さが変わらないように42枠（6週分）になるまで埋める
+        const remainingDays = 42 - days.length;
+        for (let i = 0; i < remainingDays; i++) {
+            days.push(<div key={`empty-end-${i}`} className="calendar-day empty"></div>);
+        }
+
         return days;
     };
 
@@ -397,9 +404,9 @@ const BicyclePage = () => {
                                             </div>
                                         ) : (
                                             trainingData[selectedDate] ? (
-                                                trainingData[selectedDate].split('\n').map((line, i) => (
-                                                    <p key={i} style={{ margin: '0 0 0.5rem 0' }}>{line}</p>
-                                                ))
+                                                <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8', margin: 0 }}>
+                                                    {trainingData[selectedDate]}
+                                                </div>
                                             ) : (
                                                 <p>この日のトレーニング記録はありません。</p>
                                             )
