@@ -42,7 +42,7 @@ const BicyclePage = () => {
 
     const handleSaveClick = async () => {
         const password = prompt("保存する場合はパスワードを入力してください", "");
-        if (password !== 'makino') {
+        if (password !== import.meta.env.VITE_EDIT_PASSWORD) {
             if (password !== null) alert("パスワードが違います");
             return;
         }
