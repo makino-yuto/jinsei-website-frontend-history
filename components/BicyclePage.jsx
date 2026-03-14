@@ -42,28 +42,31 @@ const BicyclePage = () => {
 
     const handleSaveClick = async () => {
         const password = prompt("保存する場合はパスワードを入力してください", "");
-        if (password !== import.meta.env.VITE_EDIT_PASSWORD) {
-            if (password !== null) alert("パスワードが違います");
-            return;
-        }
+        if (password === null) return; // キャンセル時
 
-        const newData = { ...trainingData };
         try {
-            if (editContent.trim() === "") {
-                delete newData[selectedDate];
-                const { error } = await supabase.from('training_logs').delete().eq('date', selectedDate);
-                if (error) throw error;
-            } else {
-                newData[selectedDate] = editContent;
-                const { error } = await supabase.from('training_logs').upsert({ date: selectedDate, content: editContent });
-                if (error) throw error;
-            }
+            const res = await fetch('/api/training', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password, selectedDate, editContent })
+            });
 
-            setTrainingData(newData);
-            setIsEditing(false);
+            if (res.ok) {
+                const newData = { ...trainingData };
+                if (editContent.trim() === "") {
+                    delete newData[selectedDate];
+                } else {
+                    newData[selectedDate] = editContent;
+                }
+                setTrainingData(newData);
+                setIsEditing(false);
+            } else {
+                const err = await res.json();
+                alert(err.error || "保存に失敗しました。");
+            }
         } catch (err) {
             console.error("Save error:", err);
-            alert("保存に失敗しました。");
+            alert("通信エラーが発生しました。");
         }
     };
 
