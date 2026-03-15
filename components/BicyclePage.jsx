@@ -13,6 +13,25 @@ const BicyclePage = () => {
     const [selectedDate, setSelectedDate] = useState("");
 
     const [trainingData, setTrainingData] = useState({});
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        if (!supabase) return;
+
+        // 初期セッションの取得
+        const getSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setUser(session?.user || null);
+        };
+        getSession();
+
+        // ログイン状態の変化を監視
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user || null);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     useEffect(() => {
         const fetchTraining = async () => {
@@ -45,35 +64,49 @@ const BicyclePage = () => {
         setIsEditing(true);
     };
 
+    const handleLogin = async () => {
+        if (!supabase) return;
+        await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + '/bicycle'
+            }
+        });
+    };
+
+    const handleLogout = async () => {
+        if (!supabase) return;
+        await supabase.auth.signOut();
+    };
+
     const handleSaveClick = async () => {
-        const password = prompt("保存する場合はパスワードを入力してください", "");
-        if (password === null) return; // キャンセル時
+        if (!user) {
+            alert("ログインしてください。");
+            return;
+        }
 
         try {
-            const res = await fetch('/api/training', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password, selectedDate, editContent })
-            });
-
-            if (res.ok) {
-                const newData = { ...trainingData };
-                if (editContent.trim() === "") {
-                    delete newData[selectedDate];
-                } else {
-                    newData[selectedDate] = editContent;
-                }
-                setTrainingData(newData);
-                setIsEditing(false);
+            const newData = { ...trainingData };
+            
+            if (editContent.trim() === "") {
+                const { error } = await supabase.from('training_logs').delete().eq('date', selectedDate);
+                if (error) throw error;
+                delete newData[selectedDate];
             } else {
-                const err = await res.json();
-                alert(err.error || "保存に失敗しました。");
+                const { error } = await supabase.from('training_logs').upsert({ date: selectedDate, content: editContent });
+                if (error) throw error;
+                newData[selectedDate] = editContent;
             }
+
+            setTrainingData(newData);
+            setIsEditing(false);
         } catch (err) {
             console.error("Save error:", err);
-            alert("通信エラーが発生しました。");
+            alert("保存に失敗しました。");
         }
     };
+
+
 
     useEffect(() => {
         setIsEditing(false);
@@ -358,7 +391,18 @@ const BicyclePage = () => {
                 </section>
 
                 <section id="training" className="rugged-section">
-                    <h2 className="section-title">TRAINING</h2>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h2 className="section-title">TRAINING</h2>
+                        {user ? (
+                            <button onClick={handleLogout} style={{ background: 'none', border: '1px solid #c8def2', color: '#5b84a6', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                                ログアウト
+                            </button>
+                        ) : (
+                            <button onClick={handleLogin} style={{ background: '#5b84a6', border: 'none', color: 'white', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                                管理者ログイン
+                            </button>
+                        )}
+                    </div>
                     <div className="section-content" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
 
                         <div className="calendar-container">
@@ -380,7 +424,7 @@ const BicyclePage = () => {
                                 <div className="training-details-card" style={{ display: 'flex', flexDirection: 'column' }}>
                                     <div className="training-date" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <span>{selectedDate.replace(/-/g, '/')}</span>
-                                        {!isEditing && (
+                                        {!isEditing && user && (
                                             <button
                                                 onClick={handleEditClick}
                                                 style={{ background: 'none', border: '1px solid #c8def2', borderRadius: '4px', cursor: 'pointer', color: '#5b84a6', padding: '0.2rem 0.6rem', fontSize: '0.8rem', fontWeight: 'bold' }}>
