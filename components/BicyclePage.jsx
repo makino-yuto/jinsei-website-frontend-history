@@ -84,6 +84,10 @@ const BicyclePage = () => {
             alert("ログインしてください。");
             return;
         }
+        if (user.email !== 'yuuto01222005@gmail.com') {
+            alert("編集権限がありません。");
+            return;
+        }
 
         try {
             const newData = { ...trainingData };
@@ -424,7 +428,7 @@ const BicyclePage = () => {
                                 <div className="training-details-card" style={{ display: 'flex', flexDirection: 'column' }}>
                                     <div className="training-date" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <span>{selectedDate.replace(/-/g, '/')}</span>
-                                        {!isEditing && user && (
+                                        {!isEditing && user?.email === 'yuuto01222005@gmail.com' && (
                                             <button
                                                 onClick={handleEditClick}
                                                 style={{ background: 'none', border: '1px solid #c8def2', borderRadius: '4px', cursor: 'pointer', color: '#5b84a6', padding: '0.2rem 0.6rem', fontSize: '0.8rem', fontWeight: 'bold' }}>
