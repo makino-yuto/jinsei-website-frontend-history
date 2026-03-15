@@ -31,7 +31,7 @@ const PianoPage = () => {
         <div className="rugged-page">
             <header className="rugged-header">
                 <nav className="rugged-nav">
-                    <a href="/" onClick={(e) => { e.preventDefault(); navigate(-1); }} className="back-home-link">[ HOME ]</a>
+                    <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="back-home-link">[ HOME ]</a>
                     <a href="#videos" onClick={(e) => scrollToSection(e, 'videos')}>[ VIDEOS ]</a>
                 </nav>
             </header>
