@@ -1,8 +1,82 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../supabaseClient';
 import './PersonalPage.css';
+
+const parseTimeToSeconds = (text) => {
+    const match = text.match(/Time[:\s]+((?:\d+h\s*)?(?:\d+m\s*)?(?:\d+s\s*)?)/i);
+    if (!match || !match[1].trim()) return 0;
+    
+    let totalSeconds = 0;
+    const timeStr = match[1];
+    
+    const hMatch = timeStr.match(/(\d+)h/i);
+    if (hMatch) totalSeconds += parseInt(hMatch[1], 10) * 3600;
+    
+    const mMatch = timeStr.match(/(\d+)m/i);
+    if (mMatch) totalSeconds += parseInt(mMatch[1], 10) * 60;
+    
+    const sMatch = timeStr.match(/(\d+)s/i);
+    if (sMatch) totalSeconds += parseInt(sMatch[1], 10);
+    
+    return totalSeconds;
+};
+
+const formatSeconds = (totalSeconds) => {
+    if (totalSeconds === 0) return '0s';
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = Math.floor(totalSeconds % 60);
+    let result = '';
+    if (h > 0) result += `${h}h `;
+    if (m > 0 || h > 0) result += `${m}m `;
+    result += `${s}s`;
+    return result.trim();
+};
+
+const getWeeklyTrainingData = (data, offsetWeeks) => {
+    const now = new Date();
+    // find Sunday of current week
+    const currentSunday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+    currentSunday.setHours(0,0,0,0);
+    
+    // The end week sunday depending on offset
+    const endWindowSunday = new Date(currentSunday);
+    endWindowSunday.setDate(currentSunday.getDate() + offsetWeeks * 7);
+
+    const result = [];
+    // generate 6 weeks backwards
+    for (let i = 5; i >= 0; i--) {
+        const sunday = new Date(endWindowSunday);
+        sunday.setDate(endWindowSunday.getDate() - i * 7);
+        
+        const saturday = new Date(sunday);
+        saturday.setDate(sunday.getDate() + 6);
+        
+        // Formatter: YY/MM/DD
+        const startStr = `${String(sunday.getFullYear()).slice(-2)}/${String(sunday.getMonth()+1).padStart(2,'0')}/${String(sunday.getDate()).padStart(2,'0')}`;
+        const endStr = `${String(saturday.getFullYear()).slice(-2)}/${String(saturday.getMonth()+1).padStart(2,'0')}/${String(saturday.getDate()).padStart(2,'0')}`;
+        
+        // Sum the data for this week
+        let totalSeconds = 0;
+        for (let d = 0; d < 7; d++) {
+            const tempDate = new Date(sunday);
+            tempDate.setDate(sunday.getDate() + d);
+            const dateStrKey = `${tempDate.getFullYear()}-${String(tempDate.getMonth()+1).padStart(2,'0')}-${String(tempDate.getDate()).padStart(2,'0')}`;
+            if (data[dateStrKey]) {
+                totalSeconds += parseTimeToSeconds(data[dateStrKey]);
+            }
+        }
+        
+        result.push({
+            weekLabel: `${startStr}〜${endStr}`,
+            seconds: totalSeconds,
+            formattedTime: formatSeconds(totalSeconds)
+        });
+    }
+    return result;
+};
 
 const BicyclePage = () => {
     const navigate = useNavigate();
@@ -14,6 +88,10 @@ const BicyclePage = () => {
 
     const [trainingData, setTrainingData] = useState({});
     const [user, setUser] = useState(null);
+    const [chartOffset, setChartOffset] = useState(0);
+
+    const handlePrevChart = () => setChartOffset(prev => prev - 6);
+    const handleNextChart = () => setChartOffset(prev => Math.min(prev + 6, 0));
 
     useEffect(() => {
         if (!supabase) return;
@@ -407,9 +485,48 @@ const BicyclePage = () => {
                             </button>
                         )}
                     </div>
-                    <div className="section-content" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
 
-                        <div className="calendar-container">
+                    <div className="section-content" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                        {/* 週間トレーニング時間のグラフ */}
+                        <div className="rugged-card chart-wrapper" style={{ padding: '1.5rem', height: '330px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                <button className="calendar-nav-btn" onClick={handlePrevChart}>&lt;</button>
+                                <h3 style={{ margin: 0, fontSize: '1rem', color: '#5b84a6', textAlign: 'center' }}>Weekly Training Time</h3>
+                                <button 
+                                    className="calendar-nav-btn"
+                                    onClick={handleNextChart} 
+                                    disabled={chartOffset >= 0}
+                                    style={{ opacity: chartOffset >= 0 ? 0.3 : 1, cursor: chartOffset >= 0 ? 'default' : 'pointer' }}>
+                                    &gt;
+                                </button>
+                            </div>
+                            <ResponsiveContainer width="100%" height="80%">
+                                <BarChart data={getWeeklyTrainingData(trainingData, chartOffset)} margin={{ top: 10, right: 30, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#c8def2" vertical={false} />
+                                    <XAxis dataKey="weekLabel" stroke="#5b84a6" fontSize={11} tickMargin={10} />
+                                    <YAxis 
+                                        stroke="#5b84a6" 
+                                        fontSize={12} 
+                                        domain={[0, 'auto']} 
+                                        tickFormatter={(val) => {
+                                            const h = Math.floor(val/3600);
+                                            return h > 0 ? `${h}h` : `${Math.floor(val/60)}m`;
+                                        }}
+                                    />
+                                    <Tooltip 
+                                        cursor={{fill: 'rgba(91, 132, 166, 0.1)'}} 
+                                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', border: '1px solid #c8def2', borderRadius: '4px' }} 
+                                        formatter={(value, name, props) => [props.payload.formattedTime, 'Time']}
+                                        labelFormatter={(label) => `期間: ${label}`}
+                                    />
+                                    <Bar dataKey="seconds" fill="#5b84a6" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+
+                        {/* カレンダー＆詳細エリア */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+                            <div className="calendar-container">
                             <div className="calendar-header">
                                 <button className="calendar-nav-btn" onClick={handlePrevMonth}>&lt;</button>
                                 <span>{calendarDate.getFullYear()}年 {calendarDate.getMonth() + 1}月</span>
@@ -467,7 +584,7 @@ const BicyclePage = () => {
                                 </div>
                             )}
                         </div>
-
+                    </div>
                     </div>
                 </section>
             </main>
