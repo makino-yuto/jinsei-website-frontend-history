@@ -35,47 +35,47 @@ const formatSeconds = (totalSeconds) => {
     return result.trim();
 };
 
-const getWeeklyTrainingData = (data, offsetWeeks) => {
-    const now = new Date();
-    // find Sunday of current week
-    const currentSunday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-    currentSunday.setHours(0,0,0,0);
-    
-    // The end week sunday depending on offset
-    const endWindowSunday = new Date(currentSunday);
-    endWindowSunday.setDate(currentSunday.getDate() + offsetWeeks * 7);
+const getDailyTrainingDataForWeek = (data, targetDate) => {
+    const dayLabels = ['日', '月', '火', '水', '木', '金', '土'];
+    const d = new Date(targetDate);
+    const day = d.getDay(); 
+    const sunday = new Date(d.getFullYear(), d.getMonth(), d.getDate() - day);
+    sunday.setHours(0,0,0,0);
 
     const result = [];
-    // generate 6 weeks backwards
-    for (let i = 5; i >= 0; i--) {
-        const sunday = new Date(endWindowSunday);
-        sunday.setDate(endWindowSunday.getDate() - i * 7);
+    let weekSeconds = 0;
+
+    for (let i = 0; i < 7; i++) {
+        const curr = new Date(sunday);
+        curr.setDate(sunday.getDate() + i);
+        const dateStrKey = `${curr.getFullYear()}-${String(curr.getMonth()+1).padStart(2,'0')}-${String(curr.getDate()).padStart(2,'0')}`;
         
-        const saturday = new Date(sunday);
-        saturday.setDate(sunday.getDate() + 6);
-        
-        // Formatter: YY/MM/DD
-        const startStr = `${String(sunday.getFullYear()).slice(-2)}/${String(sunday.getMonth()+1).padStart(2,'0')}/${String(sunday.getDate()).padStart(2,'0')}`;
-        const endStr = `${String(saturday.getFullYear()).slice(-2)}/${String(saturday.getMonth()+1).padStart(2,'0')}/${String(saturday.getDate()).padStart(2,'0')}`;
-        
-        // Sum the data for this week
-        let totalSeconds = 0;
-        for (let d = 0; d < 7; d++) {
-            const tempDate = new Date(sunday);
-            tempDate.setDate(sunday.getDate() + d);
-            const dateStrKey = `${tempDate.getFullYear()}-${String(tempDate.getMonth()+1).padStart(2,'0')}-${String(tempDate.getDate()).padStart(2,'0')}`;
-            if (data[dateStrKey]) {
-                totalSeconds += parseTimeToSeconds(data[dateStrKey]);
-            }
+        let seconds = 0;
+        if (data[dateStrKey]) {
+            seconds = parseTimeToSeconds(data[dateStrKey]);
+            weekSeconds += seconds;
         }
         
         result.push({
-            weekLabel: `${startStr}〜${endStr}`,
-            seconds: totalSeconds,
-            formattedTime: formatSeconds(totalSeconds)
+            dayLabel: dayLabels[i],
+            dateStr: `${String(curr.getMonth()+1).padStart(2,'0')}/${String(curr.getDate()).padStart(2,'0')}`,
+            seconds,
+            formattedTime: formatSeconds(seconds)
         });
     }
-    return result;
+
+    const startStr = `${String(sunday.getFullYear()).slice(-2)}/${String(sunday.getMonth()+1).padStart(2,'0')}/${String(sunday.getDate()).padStart(2,'0')}`;
+    
+    const saturday = new Date(sunday);
+    saturday.setDate(sunday.getDate() + 6);
+    const endStr = `${String(saturday.getFullYear()).slice(-2)}/${String(saturday.getMonth()+1).padStart(2,'0')}/${String(saturday.getDate()).padStart(2,'0')}`;
+
+    return {
+        chartData: result,
+        weekRange: `${startStr}〜${endStr}`,
+        totalTime: formatSeconds(weekSeconds),
+        weekSeconds
+    };
 };
 
 const BicyclePage = () => {
@@ -88,10 +88,42 @@ const BicyclePage = () => {
 
     const [trainingData, setTrainingData] = useState({});
     const [user, setUser] = useState(null);
-    const [chartOffset, setChartOffset] = useState(0);
+    const [chartTargetDate, setChartTargetDate] = useState(new Date());
 
-    const handlePrevChart = () => setChartOffset(prev => prev - 6);
-    const handleNextChart = () => setChartOffset(prev => Math.min(prev + 6, 0));
+    useEffect(() => {
+        if (selectedDate) setChartTargetDate(new Date(selectedDate));
+    }, [selectedDate]);
+
+    const handlePrevChart = () => setChartTargetDate(prev => {
+        const next = new Date(prev);
+        next.setDate(next.getDate() - 7);
+        return next;
+    });
+    
+    // 現在の週(日曜基準)よりも未来にいかないようにする処理
+    const isCurrentOrFutureWeek = () => {
+        const now = new Date();
+        const currentSunday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+        currentSunday.setHours(0,0,0,0);
+
+        const targetSunday = new Date(chartTargetDate.getFullYear(), chartTargetDate.getMonth(), chartTargetDate.getDate() - chartTargetDate.getDay());
+        targetSunday.setHours(0,0,0,0);
+
+        return targetSunday.getTime() >= currentSunday.getTime();
+    };
+
+    const handleNextChart = () => {
+        if (isCurrentOrFutureWeek()) return;
+        setChartTargetDate(prev => {
+            const next = new Date(prev);
+            next.setDate(next.getDate() + 7);
+            return next;
+        });
+    };
+
+    const handleResetChartToToday = () => {
+        setChartTargetDate(new Date());
+    };
 
     useEffect(() => {
         if (!supabase) return;
@@ -487,23 +519,31 @@ const BicyclePage = () => {
                     </div>
 
                     <div className="section-content" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                        {/* 週間トレーニング時間のグラフ */}
-                        <div className="rugged-card chart-wrapper" style={{ padding: '1.5rem', height: '330px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                <button className="calendar-nav-btn" onClick={handlePrevChart}>&lt;</button>
-                                <h3 style={{ margin: 0, fontSize: '1rem', color: '#5b84a6', textAlign: 'center' }}>Weekly Training Time</h3>
-                                <button 
-                                    className="calendar-nav-btn"
-                                    onClick={handleNextChart} 
-                                    disabled={chartOffset >= 0}
-                                    style={{ opacity: chartOffset >= 0 ? 0.3 : 1, cursor: chartOffset >= 0 ? 'default' : 'pointer' }}>
-                                    &gt;
-                                </button>
-                            </div>
-                            <ResponsiveContainer width="100%" height="80%">
-                                <BarChart data={getWeeklyTrainingData(trainingData, chartOffset)} margin={{ top: 10, right: 30, left: -20, bottom: 0 }}>
+                        {(() => {
+                            const { chartData, weekRange, totalTime } = getDailyTrainingDataForWeek(trainingData, chartTargetDate);
+                            return (
+                                <div className="rugged-card chart-wrapper" style={{ padding: '1.5rem', height: '330px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', position: 'relative' }}>
+                                        <button className="calendar-nav-btn" onClick={handlePrevChart}>&lt;</button>
+                                        <div style={{ textAlign: 'center' }}>
+                                            <h3 style={{ margin: 0, fontSize: '1rem', color: '#5b84a6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                                                Weekly Training Time
+                                            </h3>
+                                            <p style={{ margin: '0.2rem 0', fontSize: '1.2rem', fontWeight: 'bold', color: '#0f213b' }}>{totalTime}</p>
+                                            <p style={{ margin: 0, fontSize: '0.85rem', color: '#5b84a6' }}>{weekRange}</p>
+                                        </div>
+                                        <button 
+                                            className="calendar-nav-btn"
+                                            onClick={handleNextChart}
+                                            disabled={isCurrentOrFutureWeek()}
+                                            style={{ opacity: isCurrentOrFutureWeek() ? 0.3 : 1, cursor: isCurrentOrFutureWeek() ? 'default' : 'pointer' }}>
+                                            &gt;
+                                        </button>
+                                    </div>
+                                    <ResponsiveContainer width="100%" height="70%">
+                                        <BarChart data={chartData} margin={{ top: 10, right: 30, left: -20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#c8def2" vertical={false} />
-                                    <XAxis dataKey="weekLabel" stroke="#5b84a6" fontSize={11} tickMargin={10} />
+                                    <XAxis dataKey="dayLabel" stroke="#5b84a6" fontSize={12} tickMargin={10} />
                                     <YAxis 
                                         stroke="#5b84a6" 
                                         fontSize={12} 
@@ -517,12 +557,17 @@ const BicyclePage = () => {
                                         cursor={{fill: 'rgba(91, 132, 166, 0.1)'}} 
                                         contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', border: '1px solid #c8def2', borderRadius: '4px' }} 
                                         formatter={(value, name, props) => [props.payload.formattedTime, 'Time']}
-                                        labelFormatter={(label) => `期間: ${label}`}
+                                        labelFormatter={(label, props) => {
+                                            if (props && props.length > 0) return `${label} (${props[0].payload.dateStr})`;
+                                            return label;
+                                        }}
                                     />
                                     <Bar dataKey="seconds" fill="#5b84a6" radius={[4, 4, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
+                    );
+                    })()}
 
                         {/* カレンダー＆詳細エリア */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
