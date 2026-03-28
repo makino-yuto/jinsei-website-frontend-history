@@ -284,18 +284,18 @@ const BicyclePage = () => {
     ];
 
     const peakPowerData = [
-        { time: '5 s', W: 665, Wkg: 10.08, date: '2025/12/2' },
-        { time: '15 s', W: 586, Wkg: 8.88, date: '2025/12/16' },
+        { time: '5 s', W: 728, Wkg: 11.56, date: '2026/3/19' },
+        { time: '15 s', W: 523, Wkg: 8.3, date: '2026/3/19' },
         { time: '30 s', W: 373, Wkg: 5.83, date: '2026/1/10' },
-        { time: '1 min', W: 348, Wkg: 5.27, date: '2025/12/16' },
-        { time: '3 min', W: 266, Wkg: 4.11, date: '2025/12/20' },
-        { time: '5 min', W: 262, Wkg: 4.09, date: '2026/2/26' },
+        { time: '1 min', W: 319, Wkg: 4.98, date: '2026/1/10' },
+        { time: '3 min', W: 265, Wkg: 4.14, date: '2026/3/18' },
+        { time: '5 min', W: 264, Wkg: 4.13, date: '2026/3/18' },
         { time: '10 min', W: 258, Wkg: 4.03, date: '2026/2/26' },
         { time: '12 min', W: 257, Wkg: 4.02, date: '2026/2/26' },
         { time: '15 min', W: 255, Wkg: 3.98, date: '2026/2/26' },
         { time: '20 min', W: 252, Wkg: 3.94, date: '2026/2/26' },
-        { time: '30 min', W: 210, Wkg: 3.22, date: '2025/12/8' },
-        { time: '40 min', W: 205, Wkg: 3.19, date: '2025/12/8' },
+        { time: '30 min', W: 220, Wkg: 3.49, date: '2026/3/20' },
+        { time: '40 min', W: 220, Wkg: 3.49, date: '2026/3/20' },
     ];
 
     const tournaments = [];
