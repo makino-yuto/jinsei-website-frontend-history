@@ -15,7 +15,7 @@ const PersonalPage = () => {
     },
     {
       period: '2026/04/19',
-      title: 'TOEIC® Listening & Reading 925点',
+      title: 'TOEIC® Listening & Reading 625点',
       type: 'license',
       embedVideo: "https://www.youtube.com/embed/GBfMXbzlba4"
     },
