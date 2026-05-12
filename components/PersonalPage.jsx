@@ -4,6 +4,7 @@ import './PersonalPage.css';
 import reflexImage from '../assets/thumbnail-reflex.png';
 import profileIcon from '../assets/CtwKBnls_400x400.jpg';
 import diaryImage from '../assets/diary.png';
+import pixImage from '../assets/PIX.png';
 
 const PersonalPage = () => {
   const licenseData = [
@@ -98,7 +99,6 @@ const PersonalPage = () => {
         <section id="links" className="rugged-section">
           <h2 className="section-title">LINKS</h2>
           <div className="section-content">
-            <div className="links-grid">
               <a href="https://www.youtube.com/@zinseich" target="_blank" rel="noopener noreferrer" className="rugged-link youtube-icon">
                 <div className="link-content">
                   <span className="link-icon">
@@ -159,7 +159,6 @@ const PersonalPage = () => {
                   </svg>
                 </span>
               </a>
-            </div>
           </div>
         </section>
 
@@ -196,6 +195,18 @@ const PersonalPage = () => {
         <section id="works" className="rugged-section">
           <h2 className="section-title">WORKS</h2>
           <div className="section-content">
+            <a href="https://github.com/makino-yuto/diary_app" target="_blank" rel="noopener noreferrer" className="rugged-card work-card">
+              <div className="work-image">
+                <img src={diaryImage} alt="まいにち日記" />
+              </div>
+              <div className="work-info">
+                <div className="card-header">
+                  <span className="card-period">RELEASE 2026.05.10</span>
+                  <h3 className="card-title">まいにち日記</h3>
+                </div>
+                <p className="card-desc">シンプルな日記アプリ。<br />Androidネイティブ。</p>
+              </div>
+            </a>
             <a href="https://reflex.jinsei-makino.com/" target="_blank" rel="noopener noreferrer" className="rugged-card work-card">
               <div className="work-image">
                 <img src={reflexImage} alt="Reflex Test" />
@@ -208,16 +219,16 @@ const PersonalPage = () => {
                 <p className="card-desc">シンプルかつ高精度な反射神経テスト。<br />視覚/聴覚を選択可能。</p>
               </div>
             </a>
-            <a href="https://github.com/makino-yuto/diary_app" target="_blank" rel="noopener noreferrer" className="rugged-card work-card">
+            <a href="https://github.com/makino-yuto/PIX" target="_blank" rel="noopener noreferrer" className="rugged-card work-card">
               <div className="work-image">
-                <img src={diaryImage} alt="まいにち日記" />
+                <img src={pixImage} alt="PIX" />
               </div>
               <div className="work-info">
                 <div className="card-header">
-                  <span className="card-period">RELEASE 2026.5.10</span>
-                  <h3 className="card-title">まいにち日記</h3>
+                  <span className="card-period">RELEASE 2025.11.09</span>
+                  <h3 className="card-title">PIX</h3>
                 </div>
-                <p className="card-desc">シンプルな日記アプリ。<br />Androidネイティブ。</p>
+                <p className="card-desc">練習で作ったゲーム。(未完)<br />AIを使わずに作成。</p>
               </div>
             </a>
           </div>

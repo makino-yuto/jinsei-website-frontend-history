@@ -135,7 +135,8 @@ body {
 @media (min-width: 768px) {
 
   #license .section-content,
-  #works .section-content {
+  #works .section-content,
+  #links .section-content {
     grid-template-columns: repeat(3, 1fr);
   }
 }
@@ -149,11 +150,6 @@ body {
 }
 
 /* Links */
-.links-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
 
 .rugged-link {
   display: flex;
