@@ -217,6 +217,10 @@ body {
   fill: #000000;
 }
 
+.github-icon .link-icon svg {
+  fill: #000000;
+}
+
 .rugged-link:hover .link-icon svg {
   filter: brightness(1.1);
 }

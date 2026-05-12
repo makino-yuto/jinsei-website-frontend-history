@@ -42,8 +42,9 @@ const PianoPage = () => {
                     <div className="section-content">
                         <div className="aboutme-text">
                             <p className="biography" style={{ color: "#4f6f8f", lineHeight: "1.8", margin: 0 }}>
-                                ミスチルなどをよく弾きます。<br />
-                                現在、ピアノに関する詳細ページを準備中です。
+                                中学三年の夏に、卒業式の伴奏を弾くために練習開始。<br />
+                                そのまま継続し、今日に至る。<br />
+                                ミスチルなどをよく弾きます。
                             </p>
                         </div>
                     </div>
