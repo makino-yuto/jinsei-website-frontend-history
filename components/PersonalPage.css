@@ -217,6 +217,10 @@ body {
   fill: #000000;
 }
 
+.zenn-icon .link-icon svg {
+  fill: #3ea8ff;
+}
+
 .rugged-link:hover .link-icon svg {
   filter: brightness(1.1);
 }
