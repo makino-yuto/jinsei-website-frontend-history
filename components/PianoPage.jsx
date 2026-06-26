@@ -10,6 +10,7 @@ const PianoPage = () => {
         window.scrollTo(0, 0);
     }, []);
     const videos = [
+        { id: 'mhej__n5sTY', title: 'ザナルカンドにて/To Zanarkand', date: '2026/06/25' },
         { id: 'U0YUvDhSnFo', title: 'Mr.Children/終わりなき旅', date: '2026/03/07' }
     ];
     const scrollToSection = (e, id) => {
