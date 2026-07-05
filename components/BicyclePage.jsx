@@ -166,69 +166,6 @@ const BicyclePage = () => {
         fetchTraining();
     }, []);
 
-    useEffect(() => {
-        const runMigration = async () => {
-            if (!user || user.email !== 'yuuto01222005@gmail.com') return;
-            console.log("Migration: Checking training logs formatting...");
-            try {
-                const { data, error } = await supabase.from('training_logs').select('*');
-                if (error) {
-                    console.error("Migration: failed to fetch logs", error);
-                    return;
-                }
-                
-                const convertFormat = (text) => {
-                    if (!text) return text;
-                    const lines = text.split(/\r?\n/);
-                    const newLines = [];
-                    for (let i = 0; i < lines.length; i++) {
-                        const line = lines[i].trim();
-                        if (line === 'Menu' || line === 'Distance' || line === 'Time' || line === 'Calories') {
-                            if (i + 1 < lines.length) {
-                                const nextLine = lines[i + 1].trim();
-                                newLines.push(`${line}:${nextLine}`);
-                                i++;
-                            } else {
-                                newLines.push(lines[i]);
-                            }
-                        } else {
-                            newLines.push(lines[i]);
-                        }
-                    }
-                    return newLines.join('\n');
-                };
-
-                let updateCount = 0;
-                for (const item of data) {
-                    const original = item.content || '';
-                    const updated = convertFormat(original);
-                    if (original !== updated) {
-                        console.log(`Migration: Formatting log for ${item.date}...`);
-                        const { error: updateError } = await supabase
-                            .from('training_logs')
-                            .upsert({ date: item.date, content: updated });
-                        if (updateError) {
-                            console.error(`Migration: failed to update ${item.date}`, updateError);
-                        } else {
-                            updateCount++;
-                        }
-                    }
-                }
-                
-                if (updateCount > 0) {
-                    console.log(`Migration complete! Updated ${updateCount} rows.`);
-                    alert(`データベースの更新（${updateCount}件）が正常に完了しました！ページを再読み込みします。`);
-                    window.location.reload();
-                } else {
-                    console.log("Migration: All logs are already formatted correctly.");
-                }
-            } catch (err) {
-                console.error("Migration unexpected error:", err);
-            }
-        };
-        runMigration();
-    }, [user]);
-
     const [isEditing, setIsEditing] = useState(false);
     const [editContent, setEditContent] = useState("");
 
