@@ -10,8 +10,9 @@ const PianoPage = () => {
         window.scrollTo(0, 0);
     }, []);
     const videos = [
-        { id: 'mhej__n5sTY', title: 'ザナルカンドにて/To Zanarkand', date: '2026/06/25' },
-        { id: 'U0YUvDhSnFo', title: 'Mr.Children/終わりなき旅', date: '2026/03/07' }
+        { id: '0Zyza6_8nEA', title: 'ザナルカンドにてat都庁', date: '2026/06/29' },
+        { id: 'mhej__n5sTY', title: 'ザナルカンドにて', date: '2026/06/25' },
+        { id: 'U0YUvDhSnFo', title: '終わりなき旅at都庁', date: '2026/03/07' }
     ];
     const scrollToSection = (e, id) => {
         e.preventDefault();
