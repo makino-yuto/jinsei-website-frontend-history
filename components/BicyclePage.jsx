@@ -676,7 +676,7 @@ const BicyclePage = () => {
                                     <button className="calendar-nav-btn" onClick={handlePrevSeason}>&lt;</button>
                                     <div style={{ textAlign: 'center' }}>
                                         <h3 style={{ margin: 0, fontSize: '1rem', color: '#5b84a6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                                            Seasonly Training Time
+                                            Season Training Time
                                         </h3>
                                         <p style={{ margin: '0.2rem 0', fontSize: '1.2rem', fontWeight: 'bold', color: '#0f213b' }}>{totalTime}</p>
                                         <p style={{ margin: 0, fontSize: '0.85rem', color: '#5b84a6' }}>{quarterRange}</p>
