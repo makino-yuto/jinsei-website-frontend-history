@@ -284,6 +284,14 @@ const BicyclePage = () => {
         { date: '2026/07/05', FTP: 3.06,  timestamp: new Date('2026/07/05').getTime() },
     ];
 
+    const ftpTicks = [
+        new Date('2025/10/01').getTime(),
+        new Date('2026/01/01').getTime(),
+        new Date('2026/04/01').getTime(),
+        new Date('2026/07/01').getTime(),
+        new Date('2026/10/01').getTime()
+    ];
+
     const peakPowerData = [
         { time: '5 s', W: 671, Wkg: 10.74, date: '2026/7/4 20:11:12' },
         { time: '15 s', W: 458, Wkg: 7.33, date: '2026/7/4 20:11:12' },
@@ -482,11 +490,12 @@ const BicyclePage = () => {
                                         dataKey="timestamp"
                                         type="number"
                                         domain={[new Date('2025/10/01').getTime(), new Date('2026/10/01').getTime()]}
+                                        ticks={ftpTicks}
                                         stroke="#5b84a6"
                                         fontSize={12}
                                         tickFormatter={(tick) => {
                                             const d = new Date(tick);
-                                            return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+                                            return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}`;
                                         }}
                                     />
                                     <YAxis stroke="#5b84a6" fontSize={12} domain={['auto', 'auto']} label={{ value: 'W/kg', position: 'top', offset: 15, fill: '#5b84a6', fontSize: 12, dx: 15 }} />
