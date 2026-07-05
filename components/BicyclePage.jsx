@@ -481,7 +481,7 @@ const BicyclePage = () => {
                                     <XAxis
                                         dataKey="timestamp"
                                         type="number"
-                                        domain={[new Date('2025/10/19').getTime(), new Date('2026/07/05').getTime()]}
+                                        domain={[new Date('2025/10/01').getTime(), new Date('2026/10/01').getTime()]}
                                         stroke="#5b84a6"
                                         fontSize={12}
                                         tickFormatter={(tick) => {
