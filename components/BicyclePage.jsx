@@ -285,18 +285,18 @@ const BicyclePage = () => {
     ];
 
     const peakPowerData = [
-        { time: '5 s', W: 728, Wkg: 11.56, date: '2026/3/19' },
-        { time: '15 s', W: 523, Wkg: 8.3, date: '2026/3/19' },
-        { time: '30 s', W: 373, Wkg: 5.83, date: '2026/1/10' },
-        { time: '1 min', W: 319, Wkg: 4.98, date: '2026/1/10' },
-        { time: '3 min', W: 279, Wkg: 4.46, date: '2026/3/29' },
-        { time: '5 min', W: 279, Wkg: 4.46, date: '2026/3/29' },
-        { time: '10 min', W: 269, Wkg: 4.3, date: '2026/3/29' },
-        { time: '12 min', W: 269, Wkg: 4.3, date: '2026/3/29' },
-        { time: '15 min', W: 255, Wkg: 3.98, date: '2026/2/26' },
-        { time: '20 min', W: 252, Wkg: 3.94, date: '2026/2/26' },
-        { time: '30 min', W: 220, Wkg: 3.49, date: '2026/3/20' },
-        { time: '40 min', W: 220, Wkg: 3.49, date: '2026/3/20' },
+        { time: '5 s', W: 671, Wkg: 10.74, date: '2026/7/4 20:11:12' },
+        { time: '15 s', W: 458, Wkg: 7.33, date: '2026/7/4 20:11:12' },
+        { time: '30 s', W: 326, Wkg: 5.22, date: '2026/6/26 19:02:31' },
+        { time: '1 min', W: 324, Wkg: 5.18, date: '2026/6/26 19:02:31' },
+        { time: '3 min', W: 264, Wkg: 4.22, date: '2026/7/4 20:11:12' },
+        { time: '5 min', W: 249, Wkg: 3.98, date: '2026/7/4 20:11:12' },
+        { time: '10 min', W: 215, Wkg: 3.44, date: '2026/6/29 20:32:00' },
+        { time: '12 min', W: 215, Wkg: 3.44, date: '2026/6/29 20:32:00' },
+        { time: '15 min', W: 214, Wkg: 3.42, date: '2026/6/29 20:32:00' },
+        { time: '20 min', W: 201, Wkg: 3.22, date: '2026/6/29 20:32:00' },
+        { time: '30 min', W: 188, Wkg: 3.01, date: '2026/6/29 20:32:00' },
+        { time: '40 min', W: 180, Wkg: 2.88, date: '2026/6/29 20:32:00' },
     ];
 
     const tournaments = [];
