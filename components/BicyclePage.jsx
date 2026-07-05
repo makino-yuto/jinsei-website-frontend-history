@@ -278,9 +278,10 @@ const BicyclePage = () => {
     }, []);
 
     const powerData = [
-        { date: '2025/10/19', FTP: 2.721 },
-        { date: '2025/11/21', FTP: 3.369 },
-        { date: '2026/02/26', FTP: 3.750 },
+        { date: '2025/10/19', FTP: 2.721, timestamp: new Date('2025/10/19').getTime() },
+        { date: '2025/11/21', FTP: 3.369, timestamp: new Date('2025/11/21').getTime() },
+        { date: '2026/02/26', FTP: 3.750, timestamp: new Date('2026/02/26').getTime() },
+        { date: '2026/07/05', FTP: 3.06,  timestamp: new Date('2026/07/05').getTime() },
     ];
 
     const peakPowerData = [
@@ -471,17 +472,31 @@ const BicyclePage = () => {
 
                 <section id="power" className="rugged-section">
                     <h2 className="section-title">PWR</h2>
-                    <div className="section-content" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                    <div className="section-content" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div className="rugged-card chart-wrapper" style={{ height: '320px', padding: '1.5rem 1rem 1rem 0' }}>
                             <h3 style={{ margin: '0 0 1rem 1.5rem', fontSize: '0.9rem', color: '#5b84a6' }}>FTP</h3>
                             <ResponsiveContainer width="100%" height="85%">
                                 <LineChart data={powerData} margin={{ top: 30, right: 30, left: -20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#c8def2" />
-                                    <XAxis dataKey="date" stroke="#5b84a6" fontSize={12} />
+                                    <XAxis
+                                        dataKey="timestamp"
+                                        type="number"
+                                        domain={[new Date('2025/10/19').getTime(), new Date('2026/07/05').getTime()]}
+                                        stroke="#5b84a6"
+                                        fontSize={12}
+                                        tickFormatter={(tick) => {
+                                            const d = new Date(tick);
+                                            return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+                                        }}
+                                    />
                                     <YAxis stroke="#5b84a6" fontSize={12} domain={['auto', 'auto']} label={{ value: 'W/kg', position: 'top', offset: 15, fill: '#5b84a6', fontSize: 12, dx: 15 }} />
                                     <Tooltip
                                         contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', border: '1px solid #c8def2', borderRadius: '4px' }}
                                         labelStyle={{ color: '#0f213b', fontWeight: 'bold' }}
+                                        labelFormatter={(label) => {
+                                            const d = new Date(label);
+                                            return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+                                        }}
                                         formatter={(value) => [`${value} W/kg`, 'FTP(W/kg)']}
                                     />
                                     <Line type="linear" dataKey="FTP" stroke="#0f213b" strokeWidth={2} activeDot={{ r: 6 }} name="FTP (W/kg)" />
