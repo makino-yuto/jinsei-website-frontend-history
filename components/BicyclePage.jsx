@@ -35,6 +35,8 @@ const formatSeconds = (totalSeconds) => {
     return result.trim();
 };
 
+const formatMonthDay = (date) => `${date.getMonth()+1}/${date.getDate()}`;
+
 const getDailyTrainingDataForWeek = (data, targetDate) => {
     const dayLabels = ['日', '月', '火', '水', '木', '金', '土'];
     const d = new Date(targetDate);
@@ -106,10 +108,15 @@ const getSeasonlyTrainingData = (data, targetDate) => {
             }
         }
 
-        const weekLabel = `${currentSunday.getMonth()+1}/${currentSunday.getDate()}`;
+        const weekEnd = new Date(currentSunday);
+        weekEnd.setDate(currentSunday.getDate() + 6);
+
+        const weekLabel = formatMonthDay(currentSunday);
+        const weekRange = `${weekLabel}~${formatMonthDay(weekEnd)}`;
 
         weeks.push({
             weekLabel,
+            weekRange,
             seconds: weekSeconds,
             formattedTime: formatSeconds(weekSeconds)
         });
@@ -706,7 +713,10 @@ const BicyclePage = () => {
                                             cursor={{fill: 'rgba(91, 132, 166, 0.1)'}} 
                                             contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', border: '1px solid #c8def2', borderRadius: '4px' }} 
                                             formatter={(value, name, props) => [props.payload.formattedTime, 'Time']}
-                                            labelFormatter={(label) => `Week of ${label}`}
+                                            labelFormatter={(label, props) => {
+                                                if (props && props.length > 0) return props[0].payload.weekRange;
+                                                return label;
+                                            }}
                                         />
                                         <Bar dataKey="seconds" fill="#5b84a6" radius={[4, 4, 0, 0]} />
                                     </BarChart>
