@@ -78,6 +78,58 @@ const getDailyTrainingDataForWeek = (data, targetDate) => {
     };
 };
 
+const getSeasonlyTrainingData = (data, targetDate) => {
+    const year = targetDate.getFullYear();
+    const month = targetDate.getMonth();
+    const q = Math.floor(month / 3);
+    const startMonth = q * 3;
+    const quarterStart = new Date(year, startMonth, 1);
+    const quarterEnd = new Date(year, startMonth + 3, 0);
+
+    // Find the first Sunday on or before the start of the quarter
+    const firstSunday = new Date(quarterStart);
+    firstSunday.setDate(firstSunday.getDate() - firstSunday.getDay());
+    firstSunday.setHours(0,0,0,0);
+
+    const weeks = [];
+    let totalSeconds = 0;
+    const currentSunday = new Date(firstSunday);
+
+    while (currentSunday <= quarterEnd) {
+        let weekSeconds = 0;
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(currentSunday);
+            d.setDate(currentSunday.getDate() + i);
+            const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            if (data[key]) {
+                weekSeconds += parseTimeToSeconds(data[key]);
+            }
+        }
+
+        const weekLabel = `${currentSunday.getMonth()+1}/${currentSunday.getDate()}`;
+
+        weeks.push({
+            weekLabel,
+            seconds: weekSeconds,
+            formattedTime: formatSeconds(weekSeconds)
+        });
+
+        totalSeconds += weekSeconds;
+        currentSunday.setDate(currentSunday.getDate() + 7);
+    }
+
+    const startLabel = `${String(quarterStart.getMonth()+1).padStart(2,'0')}/01`;
+    const endLabel = `${String(quarterEnd.getMonth()+1).padStart(2,'0')}/${String(quarterEnd.getDate()).padStart(2,'0')}`;
+    const quarterRange = `${year}/${startLabel}〜${year}/${endLabel}`;
+
+    return {
+        chartData: weeks,
+        quarterRange,
+        totalTime: formatSeconds(totalSeconds),
+        totalSeconds
+    };
+};
+
 const BicyclePage = () => {
     const navigate = useNavigate();
     const [videosExpanded, setVideosExpanded] = useState(false);
@@ -89,6 +141,7 @@ const BicyclePage = () => {
     const [trainingData, setTrainingData] = useState({});
     const [user, setUser] = useState(null);
     const [chartTargetDate, setChartTargetDate] = useState(new Date());
+    const [seasonTargetDate, setSeasonTargetDate] = useState(new Date());
 
     useEffect(() => {
         if (selectedDate) setChartTargetDate(new Date(selectedDate));
@@ -123,6 +176,28 @@ const BicyclePage = () => {
 
     const handleResetChartToToday = () => {
         setChartTargetDate(new Date());
+    };
+
+    const handlePrevSeason = () => setSeasonTargetDate(prev => {
+        const next = new Date(prev);
+        next.setMonth(next.getMonth() - 3);
+        return next;
+    });
+
+    const isCurrentOrFutureQuarter = () => {
+        const now = new Date();
+        const currentQ = Math.floor(now.getMonth() / 3);
+        const targetQ = Math.floor(seasonTargetDate.getMonth() / 3);
+        return seasonTargetDate.getFullYear() > now.getFullYear() || (seasonTargetDate.getFullYear() === now.getFullYear() && targetQ >= currentQ);
+    };
+
+    const handleNextSeason = () => {
+        if (isCurrentOrFutureQuarter()) return;
+        setSeasonTargetDate(prev => {
+            const next = new Date(prev);
+            next.setMonth(next.getMonth() + 3);
+            return next;
+        });
     };
 
     useEffect(() => {
@@ -591,6 +666,53 @@ const BicyclePage = () => {
                             </ResponsiveContainer>
                         </div>
                     );
+                    })()}
+
+                    {(() => {
+                        const { chartData, quarterRange, totalTime } = getSeasonlyTrainingData(trainingData, seasonTargetDate);
+                        return (
+                            <div className="rugged-card chart-wrapper" style={{ padding: '1.5rem', height: '380px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', position: 'relative' }}>
+                                    <button className="calendar-nav-btn" onClick={handlePrevSeason}>&lt;</button>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <h3 style={{ margin: 0, fontSize: '1rem', color: '#5b84a6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                                            Seasonly Training Time
+                                        </h3>
+                                        <p style={{ margin: '0.2rem 0', fontSize: '1.2rem', fontWeight: 'bold', color: '#0f213b' }}>{totalTime}</p>
+                                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#5b84a6' }}>{quarterRange}</p>
+                                    </div>
+                                    <button 
+                                        className="calendar-nav-btn"
+                                        onClick={handleNextSeason}
+                                        disabled={isCurrentOrFutureQuarter()}
+                                        style={{ opacity: isCurrentOrFutureQuarter() ? 0.3 : 1, cursor: isCurrentOrFutureQuarter() ? 'default' : 'pointer' }}>
+                                        &gt;
+                                    </button>
+                                </div>
+                                <ResponsiveContainer width="100%" height="70%">
+                                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#c8def2" vertical={false} />
+                                        <XAxis dataKey="weekLabel" stroke="#5b84a6" fontSize={10} tickMargin={5} interval={0} angle={-45} textAnchor="end" height={40} />
+                                        <YAxis 
+                                            stroke="#5b84a6" 
+                                            fontSize={12} 
+                                            domain={[0, 'auto']} 
+                                            tickFormatter={(val) => {
+                                                const h = Math.floor(val/3600);
+                                                return h > 0 ? `${h}h` : `${Math.floor(val/60)}m`;
+                                            }}
+                                        />
+                                        <Tooltip 
+                                            cursor={{fill: 'rgba(91, 132, 166, 0.1)'}} 
+                                            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', border: '1px solid #c8def2', borderRadius: '4px' }} 
+                                            formatter={(value, name, props) => [props.payload.formattedTime, 'Time']}
+                                            labelFormatter={(label) => `Week of ${label}`}
+                                        />
+                                        <Bar dataKey="seconds" fill="#5b84a6" radius={[4, 4, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        );
                     })()}
 
                         {/* カレンダー＆詳細エリア */}
