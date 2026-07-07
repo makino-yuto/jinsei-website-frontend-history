@@ -263,7 +263,7 @@ const PersonalPage = () => {
                 公立の小・中・高等学校を卒業。<br />
                 第一志望に届かず、一年の浪人を経て静岡大学へ進学。<br />
                 のちに第一志望であった電気通信大学へ三年次編入学。<br />
-                趣味はピアノと自転車
+                趣味はピアノと自転車。
               </p>
 
               <h3 className="section-title" style={{ marginTop: "2.5rem" }}>HOBBY</h3>
