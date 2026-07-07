@@ -448,7 +448,7 @@ const BicyclePage = () => {
                         <div className="aboutme-text">
                             <p className="biography" style={{ color: "#4f6f8f", lineHeight: "1.8", margin: 0 }}>
                                 レース動画に感化され、2025年10月19日からトレーニングを始める。<br />
-                                2028年の富士ヒルクライムでプラチナリング獲得を目標に、日々トレーニング中。
+                                2027年の富士ヒルクライムでプラチナリング獲得を目標に、日々トレーニング中。
                             </p>
                         </div>
                     </div>

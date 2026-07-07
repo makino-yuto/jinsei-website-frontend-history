@@ -262,7 +262,8 @@ const PersonalPage = () => {
                 愛知県春日井市生まれ。<br />
                 公立の小・中・高等学校を卒業。<br />
                 第一志望に届かず、一年の浪人を経て静岡大学へ進学。<br />
-                のちに第一志望であった電気通信大学へ三年次編入学。
+                のちに第一志望であった電気通信大学へ三年次編入学。<br />
+                趣味はピアノと自転車
               </p>
 
               <h3 className="section-title" style={{ marginTop: "2.5rem" }}>HOBBY</h3>
@@ -282,7 +283,7 @@ const PersonalPage = () => {
                   <div className="link-content">
                     <span className="link-label">自転車</span>
                     <span className="link-desc">
-                      2028年の富士ヒルクライムでプラチナリング獲得を目標に、日々トレーニング中。
+                      2027年の富士ヒルクライムでプラチナリング獲得を目標に、日々トレーニング中。
                     </span>
                   </div>
                   <span className="link-arrow">
