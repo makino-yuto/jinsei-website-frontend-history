@@ -626,30 +626,30 @@ const BicyclePage = () => {
 
                     <div className="section-content" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                         {(() => {
-                            const { chartData, weekRange, totalTime } = getDailyTrainingDataForWeek(trainingData, chartTargetDate);
+                            const { chartData, quarterRange, totalTime } = getSeasonlyTrainingData(trainingData, seasonTargetDate);
                             return (
-                                <div className="rugged-card chart-wrapper" style={{ padding: '1.5rem', height: '330px' }}>
+                                <div className="rugged-card chart-wrapper" style={{ padding: '1.5rem', height: '380px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', position: 'relative' }}>
-                                        <button className="calendar-nav-btn" onClick={handlePrevChart}>&lt;</button>
+                                        <button className="calendar-nav-btn" onClick={handlePrevSeason}>&lt;</button>
                                         <div style={{ textAlign: 'center' }}>
                                             <h3 style={{ margin: 0, fontSize: '1rem', color: '#5b84a6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                                                Weekly Training Time
+                                                Season Training Time
                                             </h3>
                                             <p style={{ margin: '0.2rem 0', fontSize: '1.2rem', fontWeight: 'bold', color: '#0f213b' }}>{totalTime}</p>
-                                            <p style={{ margin: 0, fontSize: '0.85rem', color: '#5b84a6' }}>{weekRange}</p>
+                                            <p style={{ margin: 0, fontSize: '0.85rem', color: '#5b84a6' }}>{quarterRange}</p>
                                         </div>
                                         <button 
                                             className="calendar-nav-btn"
-                                            onClick={handleNextChart}
-                                            disabled={isCurrentOrFutureWeek()}
-                                            style={{ opacity: isCurrentOrFutureWeek() ? 0.3 : 1, cursor: isCurrentOrFutureWeek() ? 'default' : 'pointer' }}>
+                                            onClick={handleNextSeason}
+                                            disabled={isCurrentOrFutureQuarter()}
+                                            style={{ opacity: isCurrentOrFutureQuarter() ? 0.3 : 1, cursor: isCurrentOrFutureQuarter() ? 'default' : 'pointer' }}>
                                             &gt;
                                         </button>
                                     </div>
                                     <ResponsiveContainer width="100%" height="70%">
-                                        <BarChart data={chartData} margin={{ top: 10, right: 30, left: -20, bottom: 0 }}>
+                                        <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#c8def2" vertical={false} />
-                                    <XAxis dataKey="dayLabel" stroke="#5b84a6" fontSize={12} tickMargin={10} />
+                                    <XAxis dataKey="weekLabel" stroke="#5b84a6" fontSize={10} tickMargin={5} interval={0} angle={-45} textAnchor="end" height={40} />
                                     <YAxis 
                                         stroke="#5b84a6" 
                                         fontSize={12} 
@@ -664,7 +664,7 @@ const BicyclePage = () => {
                                         contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', border: '1px solid #c8def2', borderRadius: '4px' }} 
                                         formatter={(value, name, props) => [props.payload.formattedTime, 'Time']}
                                         labelFormatter={(label, props) => {
-                                            if (props && props.length > 0) return `${label} (${props[0].payload.dateStr})`;
+                                            if (props && props.length > 0) return props[0].payload.weekRange;
                                             return label;
                                         }}
                                     />
@@ -676,30 +676,30 @@ const BicyclePage = () => {
                     })()}
 
                     {(() => {
-                        const { chartData, quarterRange, totalTime } = getSeasonlyTrainingData(trainingData, seasonTargetDate);
+                        const { chartData, weekRange, totalTime } = getDailyTrainingDataForWeek(trainingData, chartTargetDate);
                         return (
-                            <div className="rugged-card chart-wrapper" style={{ padding: '1.5rem', height: '380px' }}>
+                            <div className="rugged-card chart-wrapper" style={{ padding: '1.5rem', height: '330px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', position: 'relative' }}>
-                                    <button className="calendar-nav-btn" onClick={handlePrevSeason}>&lt;</button>
+                                    <button className="calendar-nav-btn" onClick={handlePrevChart}>&lt;</button>
                                     <div style={{ textAlign: 'center' }}>
                                         <h3 style={{ margin: 0, fontSize: '1rem', color: '#5b84a6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                                            Season Training Time
+                                            Weekly Training Time
                                         </h3>
                                         <p style={{ margin: '0.2rem 0', fontSize: '1.2rem', fontWeight: 'bold', color: '#0f213b' }}>{totalTime}</p>
-                                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#5b84a6' }}>{quarterRange}</p>
+                                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#5b84a6' }}>{weekRange}</p>
                                     </div>
                                     <button 
                                         className="calendar-nav-btn"
-                                        onClick={handleNextSeason}
-                                        disabled={isCurrentOrFutureQuarter()}
-                                        style={{ opacity: isCurrentOrFutureQuarter() ? 0.3 : 1, cursor: isCurrentOrFutureQuarter() ? 'default' : 'pointer' }}>
+                                        onClick={handleNextChart}
+                                        disabled={isCurrentOrFutureWeek()}
+                                        style={{ opacity: isCurrentOrFutureWeek() ? 0.3 : 1, cursor: isCurrentOrFutureWeek() ? 'default' : 'pointer' }}>
                                         &gt;
                                     </button>
                                 </div>
                                 <ResponsiveContainer width="100%" height="70%">
-                                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <BarChart data={chartData} margin={{ top: 10, right: 30, left: -20, bottom: 0 }}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#c8def2" vertical={false} />
-                                        <XAxis dataKey="weekLabel" stroke="#5b84a6" fontSize={10} tickMargin={5} interval={0} angle={-45} textAnchor="end" height={40} />
+                                        <XAxis dataKey="dayLabel" stroke="#5b84a6" fontSize={12} tickMargin={10} />
                                         <YAxis 
                                             stroke="#5b84a6" 
                                             fontSize={12} 
@@ -714,7 +714,7 @@ const BicyclePage = () => {
                                             contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', border: '1px solid #c8def2', borderRadius: '4px' }} 
                                             formatter={(value, name, props) => [props.payload.formattedTime, 'Time']}
                                             labelFormatter={(label, props) => {
-                                                if (props && props.length > 0) return props[0].payload.weekRange;
+                                                if (props && props.length > 0) return `${label} (${props[0].payload.dateStr})`;
                                                 return label;
                                             }}
                                         />
