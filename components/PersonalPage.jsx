@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import './PersonalPage.css';
 import reflexImage from '../assets/thumbnail-reflex.png';

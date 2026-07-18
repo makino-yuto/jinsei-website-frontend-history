@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../supabaseClient';
@@ -37,7 +37,61 @@ const formatSeconds = (totalSeconds) => {
 
 const formatMonthDay = (date) => `${date.getMonth()+1}/${date.getDate()}`;
 
-const getDailyTrainingDataForWeek = (data, targetDate) => {
+const OWNER_EMAIL = 'yuuto01222005@gmail.com';
+
+const getSyncedActivitySeconds = (activity) => (
+    Number(activity.moving_time_s || activity.elapsed_time_s || 0)
+);
+
+const getTrainingSecondsForDate = (manualData, syncedData, includedManualTime, dateKey) => {
+    const syncedActivities = syncedData[dateKey] || [];
+    if (syncedActivities.length > 0) {
+        const syncedSeconds = syncedActivities.reduce(
+            (total, activity) => total + getSyncedActivitySeconds(activity),
+            0
+        );
+        const manualSeconds = includedManualTime[dateKey] && manualData[dateKey]
+            ? parseTimeToSeconds(manualData[dateKey])
+            : 0;
+        return syncedSeconds + manualSeconds;
+    }
+
+    return manualData[dateKey] ? parseTimeToSeconds(manualData[dateKey]) : 0;
+};
+
+const stripSyncedFieldsFromManualContent = (content) => content
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*(Menu|Distance|Time|Calories)\s*:/i.test(line))
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+const formatMetric = (value, maximumFractionDigits = 1) => Number(value).toLocaleString('en-US', {
+    maximumFractionDigits
+});
+
+const formatSyncedActivity = (activity) => {
+    const lines = [`Menu:${activity.title}`];
+    if (activity.distance_m != null) {
+        lines.push(`Distance:${formatMetric(activity.distance_m / 1000)}km`);
+    }
+    lines.push(`Time:${formatSeconds(getSyncedActivitySeconds(activity))}`);
+    if (activity.elevation_gain_m != null) {
+        lines.push(`Elevation:${formatMetric(activity.elevation_gain_m, 0)}m`);
+    }
+    if (activity.average_watts != null) {
+        const weighted = activity.weighted_average_watts != null
+            ? ` / ${formatMetric(activity.weighted_average_watts, 0)}W weighted`
+            : '';
+        lines.push(`Power:${formatMetric(activity.average_watts, 0)}W avg${weighted}`);
+    }
+    if (activity.calories != null) {
+        lines.push(`Calories:${formatMetric(activity.calories, 0)}cal`);
+    }
+    return lines.join('\n');
+};
+
+const getDailyTrainingDataForWeek = (data, syncedData, includedManualTime, targetDate) => {
     const dayLabels = ['日', '月', '火', '水', '木', '金', '土'];
     const d = new Date(targetDate);
     const day = d.getDay(); 
@@ -52,11 +106,13 @@ const getDailyTrainingDataForWeek = (data, targetDate) => {
         curr.setDate(sunday.getDate() + i);
         const dateStrKey = `${curr.getFullYear()}-${String(curr.getMonth()+1).padStart(2,'0')}-${String(curr.getDate()).padStart(2,'0')}`;
         
-        let seconds = 0;
-        if (data[dateStrKey]) {
-            seconds = parseTimeToSeconds(data[dateStrKey]);
-            weekSeconds += seconds;
-        }
+        const seconds = getTrainingSecondsForDate(
+            data,
+            syncedData,
+            includedManualTime,
+            dateStrKey
+        );
+        weekSeconds += seconds;
         
         result.push({
             dayLabel: dayLabels[i],
@@ -80,7 +136,7 @@ const getDailyTrainingDataForWeek = (data, targetDate) => {
     };
 };
 
-const getSeasonlyTrainingData = (data, targetDate) => {
+const getSeasonlyTrainingData = (data, syncedData, includedManualTime, targetDate) => {
     const year = targetDate.getFullYear();
     const month = targetDate.getMonth();
     const q = Math.floor(month / 3);
@@ -103,9 +159,7 @@ const getSeasonlyTrainingData = (data, targetDate) => {
             const d = new Date(currentSunday);
             d.setDate(currentSunday.getDate() + i);
             const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-            if (data[key]) {
-                weekSeconds += parseTimeToSeconds(data[key]);
-            }
+            weekSeconds += getTrainingSecondsForDate(data, syncedData, includedManualTime, key);
         }
 
         const weekEnd = new Date(currentSunday);
@@ -146,7 +200,11 @@ const BicyclePage = () => {
     const [selectedDate, setSelectedDate] = useState("");
 
     const [trainingData, setTrainingData] = useState({});
+    const [includedManualTime, setIncludedManualTime] = useState({});
+    const [syncedTrainingData, setSyncedTrainingData] = useState({});
     const [user, setUser] = useState(null);
+    const [stravaConnected, setStravaConnected] = useState(false);
+    const [isStravaSyncing, setIsStravaSyncing] = useState(false);
     const [chartTargetDate, setChartTargetDate] = useState(new Date());
     const [seasonTargetDate, setSeasonTargetDate] = useState(new Date());
 
@@ -179,10 +237,6 @@ const BicyclePage = () => {
             next.setDate(next.getDate() + 7);
             return next;
         });
-    };
-
-    const handleResetChartToToday = () => {
-        setChartTargetDate(new Date());
     };
 
     const handlePrevSeason = () => setSeasonTargetDate(prev => {
@@ -225,34 +279,89 @@ const BicyclePage = () => {
         return () => subscription.unsubscribe();
     }, []);
 
+    const fetchTraining = useCallback(async () => {
+        if (!supabase) return;
+
+        try {
+            const [manualResult, syncedResult] = await Promise.all([
+                supabase.from('training_logs').select('*'),
+                supabase
+                    .from('training_activities')
+                    .select('*')
+                    .order('started_at', { ascending: true })
+            ]);
+
+            if (manualResult.error) {
+                console.error('Supabase training_logs error:', manualResult.error);
+            } else {
+                const manualMap = {};
+                const includedManualTimeMap = {};
+                manualResult.data?.forEach((item) => {
+                    manualMap[item.date] = item.content;
+                    includedManualTimeMap[item.date] = Boolean(item.include_with_synced);
+                });
+                setTrainingData(manualMap);
+                setIncludedManualTime(includedManualTimeMap);
+            }
+
+            if (syncedResult.error) {
+                const missingTable = ['PGRST205', '42P01'].includes(syncedResult.error.code)
+                    || syncedResult.error.message?.includes('training_activities');
+                if (!missingTable) {
+                    console.error('Supabase training_activities error:', syncedResult.error);
+                }
+                setSyncedTrainingData({});
+            } else {
+                const syncedMap = {};
+                syncedResult.data?.forEach((activity) => {
+                    if (!syncedMap[activity.activity_date]) {
+                        syncedMap[activity.activity_date] = [];
+                    }
+                    syncedMap[activity.activity_date].push(activity);
+                });
+                setSyncedTrainingData(syncedMap);
+            }
+        } catch (err) {
+            console.error('Failed to fetch training:', err);
+        }
+    }, []);
+
     useEffect(() => {
-        const fetchTraining = async () => {
-            if (!supabase) return;
+        fetchTraining();
+    }, [fetchTraining]);
+
+    useEffect(() => {
+        const fetchStravaStatus = async () => {
+            if (!supabase || user?.email !== OWNER_EMAIL) {
+                setStravaConnected(false);
+                return;
+            }
+
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
             try {
-                const { data, error } = await supabase.from('training_logs').select('*');
-                if (error) {
-                    console.error("Supabase error:", error);
-                    return;
-                }
-                if (data) {
-                    const map = {};
-                    data.forEach(item => {
-                        map[item.date] = item.content;
-                    });
-                    setTrainingData(map);
-                }
-            } catch (err) {
-                console.error("Failed to fetch training:", err);
+                const response = await fetch('/api/strava-connect', {
+                    headers: { authorization: `Bearer ${session.access_token}` }
+                });
+                if (!response.ok) return;
+                const result = await response.json();
+                setStravaConnected(Boolean(result.connected));
+            } catch (error) {
+                console.error('Failed to get Strava status:', error);
             }
         };
-        fetchTraining();
-    }, []);
+
+        fetchStravaStatus();
+    }, [user]);
 
     const [isEditing, setIsEditing] = useState(false);
     const [editContent, setEditContent] = useState("");
+    const [includeEditedManualTime, setIncludeEditedManualTime] = useState(false);
 
     const handleEditClick = () => {
         setEditContent(trainingData[selectedDate] || "");
+        setIncludeEditedManualTime(Boolean(includedManualTime[selectedDate]));
         setIsEditing(true);
     };
 
@@ -271,30 +380,73 @@ const BicyclePage = () => {
         await supabase.auth.signOut();
     };
 
+    const handleStravaAction = async () => {
+        if (!supabase || user?.email !== OWNER_EMAIL || isStravaSyncing) return;
+
+        setIsStravaSyncing(true);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) throw new Error('Login required.');
+
+            if (!stravaConnected) {
+                const response = await fetch('/api/strava-connect', {
+                    headers: { authorization: `Bearer ${session.access_token}` }
+                });
+                const result = await response.json();
+                if (!response.ok || !result.authorizationUrl) {
+                    throw new Error(result.error || 'Strava connection failed.');
+                }
+                window.location.assign(result.authorizationUrl);
+                return;
+            }
+
+            const response = await fetch('/api/strava-sync?days=30', {
+                method: 'POST',
+                headers: { authorization: `Bearer ${session.access_token}` }
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || 'Strava sync failed.');
+            await fetchTraining();
+        } catch (error) {
+            console.error('Strava action failed:', error);
+            alert('Strava連携に失敗しました。');
+        } finally {
+            setIsStravaSyncing(false);
+        }
+    };
+
     const handleSaveClick = async () => {
         if (!user) {
             alert("ログインしてください。");
             return;
         }
-        if (user.email !== 'yuuto01222005@gmail.com') {
+        if (user.email !== OWNER_EMAIL) {
             alert("編集権限がありません。");
             return;
         }
 
         try {
             const newData = { ...trainingData };
+            const newIncludedManualTime = { ...includedManualTime };
             
             if (editContent.trim() === "") {
                 const { error } = await supabase.from('training_logs').delete().eq('date', selectedDate);
                 if (error) throw error;
                 delete newData[selectedDate];
+                delete newIncludedManualTime[selectedDate];
             } else {
-                const { error } = await supabase.from('training_logs').upsert({ date: selectedDate, content: editContent });
+                const { error } = await supabase.from('training_logs').upsert({
+                    date: selectedDate,
+                    content: editContent,
+                    include_with_synced: includeEditedManualTime
+                });
                 if (error) throw error;
                 newData[selectedDate] = editContent;
+                newIncludedManualTime[selectedDate] = includeEditedManualTime;
             }
 
             setTrainingData(newData);
+            setIncludedManualTime(newIncludedManualTime);
             setIsEditing(false);
         } catch (err) {
             console.error("Save error:", err);
@@ -332,11 +484,13 @@ const BicyclePage = () => {
 
         for (let i = 1; i <= daysInMonth; i++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-            const hasTraining = !!trainingData[dateStr];
+            const hasTraining = !!trainingData[dateStr]
+                || (syncedTrainingData[dateStr]?.length || 0) > 0;
             const isSelected = dateStr === selectedDate;
             days.push(
                 <div
                     key={i}
+                    data-date={dateStr}
                     className={`calendar-day ${hasTraining ? 'has-training' : ''} ${isSelected ? 'selected' : ''}`}
                     onClick={() => setSelectedDate(dateStr)}
                 >
@@ -426,6 +580,15 @@ const BicyclePage = () => {
         }
         return null;
     };
+
+    const selectedSyncedActivities = syncedTrainingData[selectedDate] || [];
+    const selectedManualContent = trainingData[selectedDate] || '';
+    const selectedManualDisplay = selectedSyncedActivities.length > 0
+        && !includedManualTime[selectedDate]
+        ? stripSyncedFieldsFromManualContent(selectedManualContent)
+        : selectedManualContent;
+    const hasSelectedTraining = Boolean(selectedManualDisplay)
+        || selectedSyncedActivities.length > 0;
 
     return (
         <div className="rugged-page">
@@ -613,20 +776,38 @@ const BicyclePage = () => {
                 <section id="training" className="rugged-section">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <h2 className="section-title">TRAINING</h2>
-                        {user ? (
-                            <button onClick={handleLogout} style={{ background: 'none', border: '1px solid #c8def2', color: '#5b84a6', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                                ログアウト
-                            </button>
-                        ) : (
-                            <button onClick={handleLogin} style={{ background: '#5b84a6', border: 'none', color: 'white', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                                管理者ログイン
-                            </button>
-                        )}
+                        <div className="training-header-actions">
+                            {user?.email === OWNER_EMAIL && (
+                                <button
+                                    className="strava-sync-btn"
+                                    onClick={handleStravaAction}
+                                    disabled={isStravaSyncing}
+                                >
+                                    {isStravaSyncing
+                                        ? 'SYNCING...'
+                                        : stravaConnected ? 'SYNC STRAVA' : 'CONNECT STRAVA'}
+                                </button>
+                            )}
+                            {user ? (
+                                <button onClick={handleLogout} style={{ background: 'none', border: '1px solid #c8def2', color: '#5b84a6', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                                    ログアウト
+                                </button>
+                            ) : (
+                                <button onClick={handleLogin} style={{ background: '#5b84a6', border: 'none', color: 'white', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                                    管理者ログイン
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     <div className="section-content" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                         {(() => {
-                            const { chartData, quarterRange, totalTime } = getSeasonlyTrainingData(trainingData, seasonTargetDate);
+                            const { chartData, quarterRange, totalTime } = getSeasonlyTrainingData(
+                                trainingData,
+                                syncedTrainingData,
+                                includedManualTime,
+                                seasonTargetDate
+                            );
                             return (
                                 <div className="rugged-card chart-wrapper" style={{ padding: '1.5rem', height: '380px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', position: 'relative' }}>
@@ -676,7 +857,12 @@ const BicyclePage = () => {
                     })()}
 
                     {(() => {
-                        const { chartData, weekRange, totalTime } = getDailyTrainingDataForWeek(trainingData, chartTargetDate);
+                        const { chartData, weekRange, totalTime } = getDailyTrainingDataForWeek(
+                            trainingData,
+                            syncedTrainingData,
+                            includedManualTime,
+                            chartTargetDate
+                        );
                         return (
                             <div className="rugged-card chart-wrapper" style={{ padding: '1.5rem', height: '330px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', position: 'relative' }}>
@@ -746,7 +932,7 @@ const BicyclePage = () => {
                                 <div className="training-details-card" style={{ display: 'flex', flexDirection: 'column' }}>
                                     <div className="training-date" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <span>{selectedDate.replace(/-/g, '/')}</span>
-                                        {!isEditing && user?.email === 'yuuto01222005@gmail.com' && (
+                                        {!isEditing && user?.email === OWNER_EMAIL && (
                                             <button
                                                 onClick={handleEditClick}
                                                 style={{ background: 'none', border: '1px solid #c8def2', borderRadius: '4px', cursor: 'pointer', color: '#5b84a6', padding: '0.2rem 0.6rem', fontSize: '0.8rem', fontWeight: 'bold' }}>
@@ -763,19 +949,51 @@ const BicyclePage = () => {
                                                     placeholder="トレーニング内容を入力..."
                                                     style={{ width: '100%', flex: 1, minHeight: '150px', padding: '0.5rem', borderRadius: '4px', border: '1px solid #a8cced', outline: 'none', resize: 'vertical', fontFamily: 'inherit', color: '#0f213b', background: 'rgba(255, 255, 255, 0.9)' }}
                                                 />
+                                                <label className="manual-time-toggle">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={includeEditedManualTime}
+                                                        onChange={(e) => setIncludeEditedManualTime(e.target.checked)}
+                                                    />
+                                                    <span>自動記録がある日もTimeを合算</span>
+                                                </label>
                                                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
                                                     <button onClick={() => setIsEditing(false)} style={{ background: 'none', border: '1px solid #c8def2', color: '#5b84a6', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>キャンセル</button>
                                                     <button onClick={handleSaveClick} style={{ background: '#5b84a6', border: 'none', color: 'white', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>保存</button>
                                                 </div>
                                             </div>
+                                        ) : hasSelectedTraining ? (
+                                            <div className="training-entry-stack">
+                                                {selectedManualDisplay && (
+                                                    <div className="manual-training-entry">
+                                                        {selectedManualDisplay}
+                                                    </div>
+                                                )}
+                                                {selectedSyncedActivities.map((activity) => (
+                                                    <div
+                                                        className="synced-training-entry"
+                                                        key={`${activity.source}-${activity.external_id}`}
+                                                    >
+                                                        <div className="synced-training-source">
+                                                            <span>ZWIFT</span>
+                                                            {activity.strava_url && (
+                                                                <a
+                                                                    href={activity.strava_url}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                >
+                                                                    STRAVA
+                                                                </a>
+                                                            )}
+                                                        </div>
+                                                        <div className="synced-training-content">
+                                                            {formatSyncedActivity(activity)}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         ) : (
-                                            trainingData[selectedDate] ? (
-                                                <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8', margin: 0 }}>
-                                                    {trainingData[selectedDate]}
-                                                </div>
-                                            ) : (
-                                                <p>この日のトレーニング記録はありません。</p>
-                                            )
+                                            <p>この日のトレーニング記録はありません。</p>
                                         )}
                                     </div>
                                 </div>
