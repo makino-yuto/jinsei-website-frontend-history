@@ -193,7 +193,6 @@ const getSeasonlyTrainingData = (data, syncedData, includedManualTime, targetDat
 
 const BicyclePage = () => {
     const navigate = useNavigate();
-    const [videosExpanded, setVideosExpanded] = useState(false);
 
     // Calendar State
     const [calendarDate, setCalendarDate] = useState(new Date());
@@ -635,16 +634,17 @@ const BicyclePage = () => {
 
     const tournaments = [
         {
-            period: '2026/10/10',
+            period: '2026/10',
             title: 'もてぎエンデューロ フルマラソンライド',
-            planned: true
+            result: '出場予定'
         }
     ];
 
     const videos = [
-        { id: "9sUUwfLeDj8", title: "最近のヒルクライム練習" },
-        { id: "4KOQAiqXXoM", title: "ローラー台でのFTP計測" },
-        { id: "d7sJJgeyqUU", title: "レースの振り返り" },
+        { period: '2025/11', title: '名古屋→浜松', embedVideo: 'https://www.youtube.com/embed/9sUUwfLeDj8' },
+        { period: '2025/11', title: 'LavenderUnicorn', embedVideo: 'https://www.youtube.com/embed/4KOQAiqXXoM' },
+        { period: '2025/11', title: '20min FTP test', embedVideo: 'https://www.youtube.com/embed/d7sJJgeyqUU' },
+        { period: '2026/10', title: 'もてぎエンデューロ フルマラソンライド', planned: true },
     ];
 
 
@@ -867,86 +867,45 @@ const BicyclePage = () => {
                         </div>
                     ) : (
                         <div className="section-content">
-                            {tournaments.map((t, idx) => (
-                                <div key={idx} className={`rugged-card ${t.planned ? 'planned-card' : ''}`}>
-                                    <div className="card-header">
-                                        <span className="card-period">{t.period}</span>
-                                        <h3 className="card-title">
-                                            {t.title}
-                                            {t.planned && <span style={{ fontSize: '0.8rem', fontWeight: 'normal', color: '#5b84a6', marginLeft: '0.5rem' }}>(出場予定)</span>}
-                                        </h3>
-                                    </div>
-                                    {t.desc && (
-                                        <p className="card-desc" style={{ marginBottom: '0.5rem' }}>{t.desc}</p>
-                                    )}
-                                    {t.embedVideo && (
-                                        <div className="video-container">
-                                            <iframe
-                                                src={t.embedVideo}
-                                                title="YouTube video player"
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                allowFullScreen>
-                                            </iframe>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                            <div className="aboutme-text">
+                                <p className="biography" style={{ color: "#4f6f8f", lineHeight: "1.8", margin: 0 }}>
+                                    {tournaments.map((t, idx) => (
+                                        <span key={idx}>
+                                            {t.period} {t.title}：{t.result}
+                                            {idx < tournaments.length - 1 && <br />}
+                                        </span>
+                                    ))}
+                                </p>
+                            </div>
                         </div>
                     )}
                 </section>
 
                 <section id="videos" className="rugged-section">
                     <h2 className="section-title">VIDEOS</h2>
-                    <div style={{ position: 'relative', overflow: 'hidden', maxHeight: videosExpanded ? '5000px' : '350px', transition: 'max-height 0.4s ease-in-out' }}>
-                        <div className="section-content" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: videosExpanded ? '1rem' : '4rem' }}>
-                            {videos.map((v, idx) => (
-                                <div key={idx} className="video-container" style={{ margin: 0 }}>
-                                    <iframe
-                                        src={`https://www.youtube.com/embed/${v.id}`}
-                                        title={v.title}
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowFullScreen
-                                    ></iframe>
+                    <div className="section-content">
+                        {videos.map((v, idx) => (
+                            <div key={idx} className={`rugged-card ${v.planned ? 'planned-card' : ''}`}>
+                                <div className="card-header">
+                                    <span className="card-period">{v.period}</span>
+                                    <h3 className="card-title">
+                                        {v.title}
+                                        {v.planned && <span style={{ fontSize: '0.8rem', fontWeight: 'normal', color: '#5b84a6', marginLeft: '0.5rem' }}>(公開予定)</span>}
+                                    </h3>
                                 </div>
-                            ))}
-                        </div>
-                        {!videosExpanded && (
-                            <div style={{
-                                position: 'absolute',
-                                bottom: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '180px',
-                                background: 'linear-gradient(to bottom, rgba(227, 239, 250, 0), #e3effa)',
-                                pointerEvents: 'none'
-                            }}></div>
-                        )}
+                                {v.embedVideo && (
+                                    <div className="video-container">
+                                        <iframe
+                                            src={v.embedVideo}
+                                            title="YouTube video player"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                        ></iframe>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
                     </div>
-                    {videos.length > 2 && (
-                        <div style={{ textAlign: 'center', marginTop: videosExpanded ? '1rem' : '-2rem', position: 'relative', zIndex: 10 }}>
-                            <button
-                                onClick={() => setVideosExpanded(!videosExpanded)}
-                                style={{
-                                    background: 'none',
-                                    border: '1px solid #c8def2',
-                                    padding: '0.5rem 2rem',
-                                    borderRadius: '4px',
-                                    color: '#5b84a6',
-                                    cursor: 'pointer',
-                                    fontFamily: 'inherit',
-                                    fontWeight: 'bold',
-                                    transition: 'all 0.2s',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '0.5rem'
-                                }}
-                                onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(200, 222, 242, 0.5)'; e.currentTarget.style.color = '#0f213b'; }}
-                                onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#5b84a6'; }}
-                            >
-                                {videosExpanded ? '∧ 閉じる' : '∨ さらに表示'}
-                            </button>
-                        </div>
-                    )}
                 </section>
 
                 <section id="power" className="rugged-section">
