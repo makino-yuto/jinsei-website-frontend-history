@@ -633,7 +633,13 @@ const BicyclePage = () => {
         { time: '40 min', W: 202, Wkg: 3.23, date: '2026/7/6 20:20:10' },
     ];
 
-    const tournaments = [];
+    const tournaments = [
+        {
+            period: '2026/10/10 (予定)',
+            title: 'もてぎエンデューロ フルマラソンライド 42.195km',
+            desc: 'モビリティリゾートもてぎ ロードコース。初レース。'
+        }
+    ];
 
     const videos = [
         { id: "9sUUwfLeDj8", title: "最近のヒルクライム練習" },
