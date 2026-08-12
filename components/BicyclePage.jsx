@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, BarChart, Bar, ComposedChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, ComposedChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../supabaseClient';
 import './PersonalPage.css';
 
@@ -785,13 +785,12 @@ const BicyclePage = () => {
             w: tl.w[i],
             hr: tl.hr?.[i],
             cad: tl.cad?.[i],
-            alt: tl.alt?.[i],
         })) : [];
         const totalMin = hasChart ? Math.round((tl.dur || rows.length * (tl.bin || 10)) / 60) : 0;
         const axisMarks = hasChart ? [0, Math.round(totalMin / 3), Math.round(totalMin * 2 / 3), totalMin] : [];
 
         return (
-            <div className="rugged-card" style={{ padding: '1rem 1.2rem 1.2rem', background: '#fff' }}>
+            <div className="rugged-card" style={{ padding: '1rem 1.2rem 1.2rem', background: '#fff', userSelect: 'none', WebkitUserSelect: 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
                     <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold', color: '#001c27', letterSpacing: '0.02em' }}>TIMELINE GRAPH</h3>
                     <span style={{ fontSize: '0.85rem', color: '#5b84a6' }}>{selectedDate.replace(/-/g, '/')}</span>
@@ -799,16 +798,26 @@ const BicyclePage = () => {
 
                 {hasChart ? (
                     <>
-                        <div style={{ border: '1px solid #e3e6e7', borderRadius: '4px', padding: '0.4rem 0 0 0', height: '190px' }}>
+                        <div
+                            style={{
+                                border: '1px solid #e3e6e7',
+                                borderRadius: '4px',
+                                padding: '0.4rem 0 0 0',
+                                height: '190px',
+                                userSelect: 'none',
+                                WebkitUserSelect: 'none',
+                                MozUserSelect: 'none',
+                                msUserSelect: 'none'
+                            }}
+                            onMouseDown={(e) => e.preventDefault()}
+                        >
                             <ResponsiveContainer width="100%" height="100%">
                                 <ComposedChart data={rows} margin={{ top: 8, right: 8, left: 8, bottom: 4 }}>
                                     <XAxis dataKey="tSec" type="number" domain={[0, 'dataMax']} hide />
-                                    <YAxis yAxisId="alt" hide domain={[0, 1400]} />
                                     <YAxis yAxisId="w" hide domain={[0, (max) => Math.max(max * 1.08, 10)]} />
                                     <YAxis yAxisId="hr" hide domain={[0, (max) => Math.max(max * 1.08, 10)]} />
                                     <YAxis yAxisId="cad" hide domain={[0, (max) => Math.max(max * 1.08, 10)]} />
                                     <Tooltip content={<TimelineTooltip />} cursor={{ stroke: '#001c27', strokeWidth: 1 }} />
-                                    <Area yAxisId="alt" dataKey="alt" stroke="none" fill="#eef0f1" isAnimationActive={false} dot={false} activeDot={false} />
                                     <Line yAxisId="cad" dataKey="cad" stroke={ZW.cad} strokeWidth={1} dot={false} activeDot={false} isAnimationActive={false} connectNulls />
                                     <Line yAxisId="hr" dataKey="hr" stroke={ZW.hr} strokeWidth={1.2} dot={false} activeDot={false} isAnimationActive={false} connectNulls />
                                     <Line yAxisId="w" dataKey="w" stroke={ZW.power} strokeWidth={1.2} dot={false} activeDot={{ r: 3 }} isAnimationActive={false} connectNulls />
