@@ -622,7 +622,18 @@ const BicyclePage = () => {
                     <div className="section-content">
                         <div className="career-list">
                             <div className="career-item">
-                                <div className="career-period">2025/10 - CURRENT</div>
+                                <div className="career-period">2026/8 - CURRENT</div>
+                                <div className="career-details">
+                                    <p className="biography" style={{ color: "#4f6f8f", lineHeight: "1.8", margin: 0, marginTop: "0.2rem" }}>
+                                        自転車: NESTO LIMIT 2<br />
+                                        スマートトレーナー: ThinkRider X2Max<br />
+                                        ペダル: SHIMANO PD-EH500<br />
+                                        シューズ: SHIMANO XC1 (SH-XC102)
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="career-item">
+                                <div className="career-period">2025/10 - 2026/8</div>
                                 <div className="career-details">
                                     <p className="biography" style={{ color: "#4f6f8f", lineHeight: "1.8", margin: 0, marginTop: "0.2rem" }}>
                                         自転車: NESTO LIMIT 2<br />
