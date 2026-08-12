@@ -735,15 +735,15 @@ const BicyclePage = () => {
         const axisMarks = hasChart ? [0, Math.round(totalMin / 3), Math.round(totalMin * 2 / 3), totalMin] : [];
 
         return (
-            <div className="rugged-card" style={{ padding: '1.5rem', background: '#fff' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 'bold', color: '#001c27', letterSpacing: '0.02em' }}>TIMELINE GRAPH</h3>
+            <div className="rugged-card" style={{ padding: '1rem 1.2rem 1.2rem', background: '#fff' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                    <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold', color: '#001c27', letterSpacing: '0.02em' }}>TIMELINE GRAPH</h3>
                     <span style={{ fontSize: '0.85rem', color: '#5b84a6' }}>{selectedDate.replace(/-/g, '/')}</span>
                 </div>
 
                 {hasChart ? (
                     <>
-                        <div style={{ border: '1px solid #e3e6e7', borderRadius: '4px', padding: '0.5rem 0 0 0', height: '300px' }}>
+                        <div style={{ border: '1px solid #e3e6e7', borderRadius: '4px', padding: '0.4rem 0 0 0', height: '190px' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <ComposedChart data={rows} margin={{ top: 8, right: 8, left: 8, bottom: 4 }}>
                                     <XAxis dataKey="tSec" type="number" domain={[0, 'dataMax']} hide />
@@ -770,10 +770,10 @@ const BicyclePage = () => {
                 )}
 
                 {stats.length > 0 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.2rem', marginTop: '1.2rem' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '0.8rem' }}>
                         {stats.map((s) => (
                             <div key={s.label}>
-                                <div style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#001c27', letterSpacing: '0.05em', marginBottom: '0.3rem' }}>
+                                <div style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#001c27', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>
                                     {s.label} <span style={{ color: '#8aa9c4', fontWeight: 'normal' }}>({s.unit})</span>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', border: '1px solid #e3e6e7', borderRadius: '4px', padding: '0.5rem 0.9rem', minWidth: '120px' }}>
