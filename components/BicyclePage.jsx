@@ -635,9 +635,9 @@ const BicyclePage = () => {
 
     const tournaments = [
         {
-            period: '2026/10/10 (予定)',
-            title: 'もてぎエンデューロ フルマラソンライド 42.195km',
-            desc: 'モビリティリゾートもてぎ ロードコース。初レース。'
+            period: '2026/10/10',
+            title: 'もてぎエンデューロ フルマラソンライド',
+            planned: true
         }
     ];
 
@@ -866,14 +866,19 @@ const BicyclePage = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="section-content" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                        <div className="section-content">
                             {tournaments.map((t, idx) => (
-                                <div key={idx} className="rugged-card">
+                                <div key={idx} className={`rugged-card ${t.planned ? 'planned-card' : ''}`}>
                                     <div className="card-header">
                                         <span className="card-period">{t.period}</span>
-                                        <h3 className="card-title">{t.title}</h3>
-                                        <p className="card-desc">{t.desc}</p>
+                                        <h3 className="card-title">
+                                            {t.title}
+                                            {t.planned && <span style={{ fontSize: '0.8rem', fontWeight: 'normal', color: '#5b84a6', marginLeft: '0.5rem' }}>(出場予定)</span>}
+                                        </h3>
                                     </div>
+                                    {t.desc && (
+                                        <p className="card-desc" style={{ marginBottom: '0.5rem' }}>{t.desc}</p>
+                                    )}
                                     {t.embedVideo && (
                                         <div className="video-container">
                                             <iframe
