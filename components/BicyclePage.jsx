@@ -683,127 +683,111 @@ const BicyclePage = () => {
 
     const selectedMetrics = trainingMetrics[selectedDate] || null;
 
-    const renderMetricsBlock = () => {
-        if (!hasSelectedTraining) return null;
+    // Zwiftのアクティビティページと同じ見た目のタイムラインセクション(全幅・SPEEDなし)
+    const renderTimelineSection = () => {
+        if (!selectedDate || !hasSelectedTraining) return null;
 
-        const statBoxStyle = {
-            background: 'rgba(255, 255, 255, 0.75)',
-            border: '1px solid #c8def2',
-            borderRadius: '6px',
-            padding: '0.5rem 0.6rem'
+        const ZW = { power: '#001c27', hr: '#fa0000', cad: '#0190cf', alt: '#e3e6e7' };
+        const tl = selectedMetrics?.timeline_data;
+        const hasChart = tl?.w?.length > 0;
+
+        const stats = selectedMetrics ? [
+            { label: 'POWER', unit: 'W', color: ZW.power, icon: '⚡', max: selectedMetrics.power_max, avg: selectedMetrics.power_avg },
+            { label: 'HEARTRATE', unit: 'bpm', color: ZW.hr, icon: '❤', max: selectedMetrics.hr_max, avg: selectedMetrics.hr_avg },
+            { label: 'CADENCE', unit: 'rpm', color: ZW.cad, icon: '◎', max: selectedMetrics.cadence_max, avg: selectedMetrics.cadence_avg },
+        ].filter((s) => s.max != null || s.avg != null) : [];
+
+        const fmtClock = (sec) => `${Math.floor(sec / 60)}:${String(Math.round(sec % 60)).padStart(2, '0')}`;
+
+        const TimelineTooltip = ({ active, payload }) => {
+            if (!active || !payload?.length) return null;
+            const d = payload[0].payload;
+            const row = (icon, color, text) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', lineHeight: 1.6 }}>
+                    <span style={{ color, fontSize: '0.85rem', width: '1rem', textAlign: 'center' }}>{icon}</span>
+                    <span style={{ color: '#001c27', fontWeight: 'bold', fontSize: '0.9rem' }}>{text}</span>
+                </div>
+            );
+            return (
+                <div style={{ background: '#fff', border: '1px solid #e3e6e7', borderRadius: '6px', padding: '0.5rem 0.8rem', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}>
+                    {d.w != null && row('⚡', ZW.power, `${d.w}`)}
+                    {d.cad != null && row('◎', ZW.cad, `${d.cad}`)}
+                    {d.hr != null && row('❤', ZW.hr, `${d.hr}`)}
+                    {row('◷', '#8aa9c4', fmtClock(d.tSec))}
+                </div>
+            );
         };
-        const statLabelStyle = { fontSize: '0.68rem', fontWeight: 'bold', color: '#5b84a6', letterSpacing: '0.05em' };
-        const statValueStyle = { fontSize: '0.95rem', fontWeight: 'bold', color: '#0f213b', lineHeight: 1.5 };
+
+        const rows = hasChart ? tl.w.map((_, i) => ({
+            tSec: i * (tl.bin || 10),
+            w: tl.w[i],
+            hr: tl.hr?.[i],
+            cad: tl.cad?.[i],
+            alt: tl.alt?.[i],
+        })) : [];
+        const totalMin = hasChart ? Math.round((tl.dur || rows.length * (tl.bin || 10)) / 60) : 0;
+        const axisMarks = hasChart ? [0, Math.round(totalMin / 3), Math.round(totalMin * 2 / 3), totalMin] : [];
 
         return (
-            <div style={{ marginTop: '1rem', borderTop: '1px dashed #c8def2', paddingTop: '0.8rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#5b84a6', letterSpacing: '0.1em' }}>DATA</span>
-                    {selectedMetrics?.ftp != null && (
-                        <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#0f213b', background: 'rgba(200, 222, 242, 0.6)', borderRadius: '4px', padding: '0.15rem 0.6rem' }}>
-                            FTP {selectedMetrics.ftp}W
-                        </span>
-                    )}
+            <div className="rugged-card" style={{ padding: '1.5rem', background: '#fff' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 'bold', color: '#001c27', letterSpacing: '0.02em' }}>TIMELINE GRAPH</h3>
+                    <span style={{ fontSize: '0.85rem', color: '#5b84a6' }}>{selectedDate.replace(/-/g, '/')}</span>
                 </div>
-                {selectedMetrics ? (
+
+                {hasChart ? (
                     <>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '0.5rem' }}>
-                            {[
-                                { label: 'POWER', unit: 'W', max: selectedMetrics.power_max, avg: selectedMetrics.power_avg },
-                                { label: 'SPEED', unit: 'km/h', max: selectedMetrics.speed_max, avg: selectedMetrics.speed_avg },
-                                { label: 'HEARTRATE', unit: 'bpm', max: selectedMetrics.hr_max, avg: selectedMetrics.hr_avg },
-                                { label: 'CADENCE', unit: 'rpm', max: selectedMetrics.cadence_max, avg: selectedMetrics.cadence_avg },
-                            ].filter((s) => s.max != null || s.avg != null).map((s) => (
-                                <div key={s.label} style={statBoxStyle}>
-                                    <div style={statLabelStyle}>{s.label} <span style={{ fontWeight: 'normal' }}>({s.unit})</span></div>
-                                    <div style={statValueStyle}>
-                                        {s.max != null && <>MAX <strong>{s.max}</strong><br /></>}
-                                        {s.avg != null && <>AVG <strong>{s.avg}</strong></>}
-                                    </div>
-                                </div>
+                        <div style={{ border: '1px solid #e3e6e7', borderRadius: '4px', padding: '0.5rem 0 0 0', height: '300px' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <ComposedChart data={rows} margin={{ top: 8, right: 8, left: 8, bottom: 4 }}>
+                                    <XAxis dataKey="tSec" type="number" domain={[0, 'dataMax']} hide />
+                                    <YAxis yAxisId="alt" hide domain={[0, 1400]} />
+                                    <YAxis yAxisId="w" hide domain={[0, (max) => Math.max(max * 1.08, 10)]} />
+                                    <YAxis yAxisId="hr" hide domain={[0, (max) => Math.max(max * 1.08, 10)]} />
+                                    <YAxis yAxisId="cad" hide domain={[0, (max) => Math.max(max * 1.08, 10)]} />
+                                    <Tooltip content={<TimelineTooltip />} cursor={{ stroke: '#001c27', strokeWidth: 1 }} />
+                                    <Area yAxisId="alt" dataKey="alt" stroke="none" fill="#eef0f1" isAnimationActive={false} dot={false} activeDot={false} />
+                                    <Line yAxisId="cad" dataKey="cad" stroke={ZW.cad} strokeWidth={1} dot={false} activeDot={false} isAnimationActive={false} connectNulls />
+                                    <Line yAxisId="hr" dataKey="hr" stroke={ZW.hr} strokeWidth={1.2} dot={false} activeDot={false} isAnimationActive={false} connectNulls />
+                                    <Line yAxisId="w" dataKey="w" stroke={ZW.power} strokeWidth={1.2} dot={false} activeDot={{ r: 3 }} isAnimationActive={false} connectNulls />
+                                </ComposedChart>
+                            </ResponsiveContainer>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', margin: '0.35rem 0.2rem 0' }}>
+                            {axisMarks.map((m, i) => (
+                                <span key={i} style={{ fontSize: '0.75rem', color: '#8aa9c4' }}>{m} min</span>
                             ))}
                         </div>
-                        {selectedMetrics.timeline_data?.w?.length > 0 && (() => {
-                            const tl = selectedMetrics.timeline_data;
-                            const bin = tl.bin || 10;
-                            const rows = tl.w.map((_, i) => ({
-                                tSec: i * bin,
-                                w: tl.w[i],
-                                hr: tl.hr?.[i],
-                                cad: tl.cad?.[i],
-                                spd: tl.spd?.[i],
-                                alt: tl.alt?.[i],
-                            }));
-                            const fmtTime = (sec) => `${Math.floor(sec / 60)}:${String(Math.round(sec % 60)).padStart(2, '0')}`;
-                            const TimelineTooltip = ({ active, payload }) => {
-                                if (!active || !payload || payload.length === 0) return null;
-                                const d = payload[0].payload;
-                                const line = (color, text) => (
-                                    <p style={{ margin: 0, color, fontWeight: 'bold', fontSize: '0.8rem' }}>{text}</p>
-                                );
-                                return (
-                                    <div style={{ background: 'rgba(255,255,255,0.95)', border: '1px solid #c8def2', borderRadius: '4px', padding: '6px 10px' }}>
-                                        <p style={{ margin: 0, color: '#5b84a6', fontSize: '0.75rem', fontWeight: 'bold' }}>{fmtTime(d.tSec)}</p>
-                                        {d.w != null && line('#001c27', `${d.w} W`)}
-                                        {d.hr != null && line('#fa0000', `${d.hr} bpm`)}
-                                        {d.cad != null && line('#0190cf', `${d.cad} rpm`)}
-                                        {d.spd != null && line('#40be59', `${d.spd} km/h`)}
-                                    </div>
-                                );
-                            };
-                            return (
-                                <div style={{ marginTop: '0.8rem', height: '210px', background: 'rgba(255,255,255,0.75)', border: '1px solid #c8def2', borderRadius: '6px', padding: '0.6rem 0.4rem 0 0.2rem' }}>
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <ComposedChart data={rows} margin={{ top: 5, right: 5, left: 5, bottom: 18 }}>
-                                            <XAxis
-                                                dataKey="tSec"
-                                                type="number"
-                                                domain={[0, 'dataMax']}
-                                                stroke="#5b84a6"
-                                                fontSize={10}
-                                                tickFormatter={(sec) => `${Math.round(sec / 60)}min`}
-                                                tickCount={5}
-                                            />
-                                            <YAxis yAxisId="alt" hide domain={[0, 1100]} />
-                                            <YAxis yAxisId="w" hide domain={[0, (max) => Math.max(max * 1.05, 10)]} />
-                                            <YAxis yAxisId="hr" hide domain={[0, (max) => Math.max(max * 1.05, 10)]} />
-                                            <YAxis yAxisId="cad" hide domain={[0, (max) => Math.max(max * 1.05, 10)]} />
-                                            <YAxis yAxisId="spd" hide domain={[0, (max) => Math.max(max * 1.05, 10)]} />
-                                            <Tooltip content={<TimelineTooltip />} />
-                                            <Area yAxisId="alt" dataKey="alt" stroke="#e3e6e7" fill="#eef1f2" isAnimationActive={false} dot={false} activeDot={false} />
-                                            <Line yAxisId="spd" dataKey="spd" stroke="#40be59" strokeWidth={1} dot={false} activeDot={false} isAnimationActive={false} connectNulls />
-                                            <Line yAxisId="cad" dataKey="cad" stroke="#0190cf" strokeWidth={1} dot={false} activeDot={false} isAnimationActive={false} connectNulls />
-                                            <Line yAxisId="hr" dataKey="hr" stroke="#fa0000" strokeWidth={1.2} dot={false} activeDot={false} isAnimationActive={false} connectNulls />
-                                            <Line yAxisId="w" dataKey="w" stroke="#001c27" strokeWidth={1.2} dot={false} activeDot={{ r: 3 }} isAnimationActive={false} connectNulls />
-                                        </ComposedChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            );
-                        })()}
-                        {!selectedMetrics.timeline_data && selectedMetrics.timeline_image_url && (
-                            <a href={selectedMetrics.timeline_image_url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', marginTop: '0.8rem' }}>
-                                <img
-                                    src={selectedMetrics.timeline_image_url}
-                                    alt={`${selectedDate} timeline`}
-                                    style={{ width: '100%', borderRadius: '6px', border: '1px solid #c8def2', display: 'block' }}
-                                    loading="lazy"
-                                />
-                            </a>
-                        )}
                     </>
                 ) : (
-                    <p style={{ margin: 0, color: '#8aa9c4', fontSize: '0.9rem' }}>No Data</p>
+                    <p style={{ margin: '0 0 1rem', color: '#8aa9c4', fontSize: '0.9rem' }}>No Data</p>
+                )}
+
+                {stats.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.2rem', marginTop: '1.2rem' }}>
+                        {stats.map((s) => (
+                            <div key={s.label}>
+                                <div style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#001c27', letterSpacing: '0.05em', marginBottom: '0.3rem' }}>
+                                    {s.label} <span style={{ color: '#8aa9c4', fontWeight: 'normal' }}>({s.unit})</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', border: '1px solid #e3e6e7', borderRadius: '4px', padding: '0.5rem 0.9rem', minWidth: '120px' }}>
+                                    <span style={{ color: s.color, fontSize: '1.1rem' }}>{s.icon}</span>
+                                    <div style={{ fontSize: '0.8rem', color: '#8aa9c4', lineHeight: 1.45 }}>
+                                        {s.max != null && <div>MAX <strong style={{ color: '#001c27', fontSize: '0.95rem' }}>{s.max}</strong></div>}
+                                        {s.avg != null && <div>AVG <strong style={{ color: '#001c27', fontSize: '0.95rem' }}>{s.avg}</strong></div>}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 )}
             </div>
         );
     };
 
     const metricFields = [
-        { key: 'ftp', label: 'FTP(当時) W', step: '1' },
         { key: 'power_max', label: 'Power MAX', step: '1' },
         { key: 'power_avg', label: 'Power AVG', step: '1' },
-        { key: 'speed_max', label: 'Speed MAX', step: '0.1' },
-        { key: 'speed_avg', label: 'Speed AVG', step: '0.1' },
         { key: 'hr_max', label: 'HR MAX', step: '1' },
         { key: 'hr_avg', label: 'HR AVG', step: '1' },
         { key: 'cadence_max', label: 'Cadence MAX', step: '1' },
@@ -1250,7 +1234,6 @@ const BicyclePage = () => {
                                                         </div>
                                                     </div>
                                                 ))}
-                                                {renderMetricsBlock()}
                                             </div>
                                         ) : (
                                             <p>この日のトレーニング記録はありません。</p>
@@ -1264,6 +1247,9 @@ const BicyclePage = () => {
                             )}
                         </div>
                     </div>
+
+                    {/* Zwift風タイムライン(全幅) */}
+                    {renderTimelineSection()}
                     </div>
                 </section>
             </main>
