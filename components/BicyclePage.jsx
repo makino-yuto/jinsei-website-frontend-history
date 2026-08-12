@@ -289,7 +289,9 @@ const BicyclePage = () => {
                     .from('training_activities')
                     .select('*')
                     .order('started_at', { ascending: true }),
-                supabase.from('training_metrics').select('*')
+                supabase
+                    .from('training_metrics')
+                    .select('date, power_max, power_avg, hr_max, hr_avg, cadence_max, cadence_avg, timeline_image_url')
             ]);
 
             if (manualResult.error) {
@@ -528,7 +530,7 @@ const BicyclePage = () => {
                 const row = { date: selectedDate, ...parsed, timeline_image_url: imageUrl };
                 const { error: metricsError } = await supabase.from('training_metrics').upsert(row);
                 if (metricsError) throw metricsError;
-                newMetrics[selectedDate] = row;
+                newMetrics[selectedDate] = { ...(existingMetrics || {}), ...row };
             }
             setTrainingMetrics(newMetrics);
 
@@ -548,6 +550,32 @@ const BicyclePage = () => {
     useEffect(() => {
         setIsEditing(false);
     }, [selectedDate]);
+
+    // タイムラインは重いので選択日だけ都度取得してキャッシュする
+    const [timelineCache, setTimelineCache] = useState({});
+    useEffect(() => {
+        if (!supabase || !selectedDate) return;
+        if (timelineCache[selectedDate] !== undefined) return;
+        if (!trainingMetrics[selectedDate]) return;
+
+        let cancelled = false;
+        (async () => {
+            const { data, error } = await supabase
+                .from('training_metrics')
+                .select('timeline_data')
+                .eq('date', selectedDate)
+                .maybeSingle();
+            if (cancelled) return;
+            if (error) {
+                console.error('timeline fetch error:', error);
+                setTimelineCache((prev) => ({ ...prev, [selectedDate]: null }));
+                return;
+            }
+            setTimelineCache((prev) => ({ ...prev, [selectedDate]: data?.timeline_data || null }));
+        })();
+
+        return () => { cancelled = true; };
+    }, [selectedDate, trainingMetrics, timelineCache]);
 
     const handlePrevMonth = () => {
         setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1, 1));
@@ -689,18 +717,44 @@ const BicyclePage = () => {
 
     const selectedMetrics = trainingMetrics[selectedDate] || null;
 
+    // Zwift公式のアイコン(アクティビティページの POWER / HEARTRATE / CADENCE と同一パス)
+    const ZwiftIcon = ({ kind, color, size = 16 }) => {
+        const shapes = {
+            power: {
+                viewBox: '0 0 24 24',
+                d: 'M9.66541212,11.7872595 L6.44337879,11.7872595 C5.47939086,11.7872595 4.69792425,11.0057929 4.69792425,10.041805 C4.69792425,9.92304612 4.7100445,9.80459731 4.73409663,9.68829959 L6.44990725,1.39194917 C6.61754734,0.581369623 7.33145612,3.74096744e-16 8.15918941,0 L16.0319614,0 L13.0360048,6.6363971 L17.8459997,6.6363971 C18.6894892,6.6363971 19.3732724,7.32018039 19.3732724,8.16366983 C19.3732724,8.54377513 19.2315333,8.91022112 18.9757551,9.19139292 L5.50456694,24 L9.66541212,11.7872595 Z'
+            },
+            hr: {
+                viewBox: '0 0 16 16',
+                d: 'M0.746556741,8.64610806 L3.06080292,8.64610806 C3.48203007,8.64610806 3.87919556,8.45259212 4.1350176,8.12270493 L4.77979447,7.29125339 L6.05634077,10.6381064 C6.20089005,11.0170862 6.62972528,11.2087957 7.01417107,11.0663016 C7.13496623,11.0215291 7.24186341,10.9465403 7.32435446,10.8487066 L9.18153351,8.64610806 L14.95439,8.64610806 C13.6650846,10.3319743 11.1340332,12.2832716 7.36123584,14.5 C4.01572892,12.297183 1.81083589,10.3458857 0.746556741,8.64610806 L0.746556741,8.64610806 Z M0.116894318,7.262903 C0.0472721368,7.00377826 0.00922746971,6.75161675 0.00276031645,6.50641849 C-0.0817486674,3.30231065 1.78364291,1.5 4.30201063,1.5 C5.98092244,1.5 7.25419113,2.21202396 8.1218167,3.63607189 C9.1697281,2.21202396 10.5444076,1.5 12.2458551,1.5 C14.6628121,1.5 16.3578493,3.43581515 15.9353043,6.57317073 C15.9051873,6.79678671 15.8456219,7.02669747 15.7566081,7.262903 L9.11632547,7.262903 C8.7198039,7.262903 8.34326697,7.4344793 8.08636131,7.73222599 L7.29783374,8.64610806 L5.48313646,3.96983312 L2.96922451,7.262903 L0.116894318,7.262903 Z'
+            },
+            cad: {
+                viewBox: '0 0 24 24',
+                d: 'M14.266238,11.7666289 L9.30045352,11.7660196 L20.4919891,0.600425863 C21.2952913,-0.201014246 22.5959201,-0.200013473 23.3983821,0.602662194 C24.2004002,1.40489382 24.2005596,2.70540874 23.3987383,3.50744356 L23.3984844,3.50769755 L15.7557506,11.1497924 C15.3606877,11.5448222 14.824912,11.7666289 14.266238,11.7666289 Z M5.73346376,21.2455925 L3.59645487,23.3830294 C2.77383028,24.2058188 1.43997948,24.2056331 0.617180194,23.3826147 C-0.205583994,22.5596314 -0.20574761,21.2254755 0.616814746,20.4026941 L0.616863882,20.402645 L2.73791296,18.2811711 C3.56624787,19.4263743 4.57934858,20.4291024 5.73346376,21.2455925 Z M14.2374631,3.87910721 L8.73646993,9.38362099 C7.11102369,11.0101075 7.11102364,13.646519 8.73646983,15.2730056 L8.73756892,15.2741049 C10.3628373,16.899199 12.997426,16.8987069 14.6220874,15.2730057 L20.069418,9.82218886 C20.3035618,10.6172374 20.4292047,11.4587857 20.4292047,12.3296873 C20.4292047,17.2221035 16.4641737,21.1881904 11.5730601,21.1881904 C6.68194641,21.1881904 2.71691538,17.2221035 2.71691538,12.3296873 C2.71691538,7.43727113 6.68194641,3.47118419 11.5730601,3.47118419 C12.501491,3.47118419 13.3965536,3.61408869 14.2374631,3.87910721 Z'
+            }
+        };
+        const s = shapes[kind];
+        if (!s) return null;
+        return (
+            <svg viewBox={s.viewBox} width={size} height={size} preserveAspectRatio="xMidYMid meet" style={{ display: 'block', flexShrink: 0 }}>
+                <path d={s.d} fill={color} />
+            </svg>
+        );
+    };
+
     // Zwiftのアクティビティページと同じ見た目のタイムラインセクション(全幅・SPEEDなし)
     const renderTimelineSection = () => {
         if (!selectedDate || !hasSelectedTraining) return null;
 
         const ZW = { power: '#001c27', hr: '#fa0000', cad: '#0190cf', alt: '#e3e6e7' };
-        const tl = selectedMetrics?.timeline_data;
+        const tl = timelineCache[selectedDate];
         const hasChart = tl?.w?.length > 0;
+        const loadingChart = selectedMetrics && timelineCache[selectedDate] === undefined;
 
         const stats = selectedMetrics ? [
-            { label: 'POWER', unit: 'W', color: ZW.power, icon: '⚡', max: selectedMetrics.power_max, avg: selectedMetrics.power_avg },
-            { label: 'HEARTRATE', unit: 'bpm', color: ZW.hr, icon: '❤', max: selectedMetrics.hr_max, avg: selectedMetrics.hr_avg },
-            { label: 'CADENCE', unit: 'rpm', color: ZW.cad, icon: '◎', max: selectedMetrics.cadence_max, avg: selectedMetrics.cadence_avg },
+            { label: 'POWER', unit: 'W', color: ZW.power, kind: 'power', max: selectedMetrics.power_max, avg: selectedMetrics.power_avg },
+            { label: 'HEARTRATE', unit: 'bpm', color: ZW.hr, kind: 'hr', max: selectedMetrics.hr_max, avg: selectedMetrics.hr_avg },
+            { label: 'CADENCE', unit: 'rpm', color: ZW.cad, kind: 'cad', max: selectedMetrics.cadence_max, avg: selectedMetrics.cadence_avg },
         ].filter((s) => s.max != null || s.avg != null) : [];
 
         const fmtClock = (sec) => `${Math.floor(sec / 60)}:${String(Math.round(sec % 60)).padStart(2, '0')}`;
@@ -708,18 +762,20 @@ const BicyclePage = () => {
         const TimelineTooltip = ({ active, payload }) => {
             if (!active || !payload?.length) return null;
             const d = payload[0].payload;
-            const row = (icon, color, text) => (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', lineHeight: 1.6 }}>
-                    <span style={{ color, fontSize: '0.85rem', width: '1rem', textAlign: 'center' }}>{icon}</span>
+            const row = (kind, color, text) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', lineHeight: 1.7 }}>
+                    <span style={{ width: '16px', display: 'flex', justifyContent: 'center' }}>
+                        {kind ? <ZwiftIcon kind={kind} color={color} size={14} /> : <span style={{ color, fontSize: '0.8rem' }}>◷</span>}
+                    </span>
                     <span style={{ color: '#001c27', fontWeight: 'bold', fontSize: '0.9rem' }}>{text}</span>
                 </div>
             );
             return (
                 <div style={{ background: '#fff', border: '1px solid #e3e6e7', borderRadius: '6px', padding: '0.5rem 0.8rem', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}>
-                    {d.w != null && row('⚡', ZW.power, `${d.w}`)}
-                    {d.cad != null && row('◎', ZW.cad, `${d.cad}`)}
-                    {d.hr != null && row('❤', ZW.hr, `${d.hr}`)}
-                    {row('◷', '#8aa9c4', fmtClock(d.tSec))}
+                    {d.w != null && row('power', ZW.power, `${d.w}`)}
+                    {d.cad != null && row('cad', ZW.cad, `${d.cad}`)}
+                    {d.hr != null && row('hr', ZW.hr, `${d.hr}`)}
+                    {row(null, '#8aa9c4', fmtClock(d.tSec))}
                 </div>
             );
         };
@@ -766,7 +822,7 @@ const BicyclePage = () => {
                         </div>
                     </>
                 ) : (
-                    <p style={{ margin: '0 0 1rem', color: '#8aa9c4', fontSize: '0.9rem' }}>No Data</p>
+                    <p style={{ margin: '0 0 1rem', color: '#8aa9c4', fontSize: '0.9rem' }}>{loadingChart ? 'Loading...' : 'No Data'}</p>
                 )}
 
                 {stats.length > 0 && (
@@ -777,7 +833,7 @@ const BicyclePage = () => {
                                     {s.label} <span style={{ color: '#8aa9c4', fontWeight: 'normal' }}>({s.unit})</span>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', border: '1px solid #e3e6e7', borderRadius: '4px', padding: '0.5rem 0.9rem', minWidth: '120px' }}>
-                                    <span style={{ color: s.color, fontSize: '1.1rem' }}>{s.icon}</span>
+                                    <ZwiftIcon kind={s.kind} color={s.color} size={18} />
                                     <div style={{ fontSize: '0.8rem', color: '#8aa9c4', lineHeight: 1.45 }}>
                                         {s.max != null && <div>MAX <strong style={{ color: '#001c27', fontSize: '0.95rem' }}>{s.max}</strong></div>}
                                         {s.avg != null && <div>AVG <strong style={{ color: '#001c27', fontSize: '0.95rem' }}>{s.avg}</strong></div>}

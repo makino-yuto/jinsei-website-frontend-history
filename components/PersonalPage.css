@@ -136,7 +136,8 @@ body {
 
   #license .section-content,
   #works .section-content,
-  #links .section-content {
+  #links .section-content,
+  #videos .section-content {
     grid-template-columns: repeat(3, 1fr);
   }
 }
