@@ -202,6 +202,7 @@ const BicyclePage = () => {
     const [trainingData, setTrainingData] = useState({});
     const [includedManualTime, setIncludedManualTime] = useState({});
     const [syncedTrainingData, setSyncedTrainingData] = useState({});
+    const [trainingMetrics, setTrainingMetrics] = useState({});
     const [user, setUser] = useState(null);
     const [stravaConnected, setStravaConnected] = useState(false);
     const [isStravaSyncing, setIsStravaSyncing] = useState(false);
@@ -283,12 +284,13 @@ const BicyclePage = () => {
         if (!supabase) return;
 
         try {
-            const [manualResult, syncedResult] = await Promise.all([
+            const [manualResult, syncedResult, metricsResult] = await Promise.all([
                 supabase.from('training_logs').select('*'),
                 supabase
                     .from('training_activities')
                     .select('*')
-                    .order('started_at', { ascending: true })
+                    .order('started_at', { ascending: true }),
+                supabase.from('training_metrics').select('*')
             ]);
 
             if (manualResult.error) {
@@ -320,6 +322,21 @@ const BicyclePage = () => {
                     syncedMap[activity.activity_date].push(activity);
                 });
                 setSyncedTrainingData(syncedMap);
+            }
+
+            if (metricsResult.error) {
+                const missingTable = ['PGRST205', '42P01'].includes(metricsResult.error.code)
+                    || metricsResult.error.message?.includes('training_metrics');
+                if (!missingTable) {
+                    console.error('Supabase training_metrics error:', metricsResult.error);
+                }
+                setTrainingMetrics({});
+            } else {
+                const metricsMap = {};
+                metricsResult.data?.forEach((row) => {
+                    metricsMap[row.date] = row;
+                });
+                setTrainingMetrics(metricsMap);
             }
         } catch (err) {
             console.error('Failed to fetch training:', err);
@@ -359,9 +376,37 @@ const BicyclePage = () => {
     const [editContent, setEditContent] = useState("");
     const [includeEditedManualTime, setIncludeEditedManualTime] = useState(false);
 
+    const EMPTY_METRICS_FORM = {
+        ftp: '', power_max: '', power_avg: '', speed_max: '', speed_avg: '',
+        hr_max: '', hr_avg: '', cadence_max: '', cadence_avg: ''
+    };
+    const [editMetrics, setEditMetrics] = useState(EMPTY_METRICS_FORM);
+    const [editImageFile, setEditImageFile] = useState(null);
+    const [isSavingEntry, setIsSavingEntry] = useState(false);
+
+    // 指定日以前で最後に記録されたFTP(新規入力時のプリフィル用)
+    const getLatestFtpOnOrBefore = (dateStr) => {
+        const dates = Object.keys(trainingMetrics)
+            .filter((d) => d <= dateStr && trainingMetrics[d]?.ftp != null)
+            .sort();
+        if (dates.length === 0) return '';
+        return trainingMetrics[dates[dates.length - 1]].ftp;
+    };
+
     const handleEditClick = () => {
         setEditContent(trainingData[selectedDate] || "");
         setIncludeEditedManualTime(Boolean(includedManualTime[selectedDate]));
+        const existing = trainingMetrics[selectedDate];
+        if (existing) {
+            const form = { ...EMPTY_METRICS_FORM };
+            Object.keys(EMPTY_METRICS_FORM).forEach((k) => {
+                form[k] = existing[k] != null ? String(existing[k]) : '';
+            });
+            setEditMetrics(form);
+        } else {
+            setEditMetrics({ ...EMPTY_METRICS_FORM, ftp: String(getLatestFtpOnOrBefore(selectedDate) || '') });
+        }
+        setEditImageFile(null);
         setIsEditing(true);
     };
 
@@ -424,11 +469,13 @@ const BicyclePage = () => {
             alert("編集権限がありません。");
             return;
         }
+        if (isSavingEntry) return;
+        setIsSavingEntry(true);
 
         try {
             const newData = { ...trainingData };
             const newIncludedManualTime = { ...includedManualTime };
-            
+
             if (editContent.trim() === "") {
                 const { error } = await supabase.from('training_logs').delete().eq('date', selectedDate);
                 if (error) throw error;
@@ -445,12 +492,55 @@ const BicyclePage = () => {
                 newIncludedManualTime[selectedDate] = includeEditedManualTime;
             }
 
+            // ---- DATA(メトリクス+タイムライン画像)の保存 ----
+            const existingMetrics = trainingMetrics[selectedDate];
+            const parsed = {};
+            let hasNumericValue = false;
+            Object.keys(EMPTY_METRICS_FORM).forEach((k) => {
+                const raw = String(editMetrics[k] ?? '').trim();
+                if (raw !== '' && !Number.isNaN(Number(raw))) {
+                    parsed[k] = Number(raw);
+                    hasNumericValue = true;
+                } else {
+                    parsed[k] = null;
+                }
+            });
+
+            let imageUrl = existingMetrics?.timeline_image_url || null;
+            if (editImageFile) {
+                const ext = (editImageFile.name.split('.').pop() || 'png').toLowerCase();
+                const path = `${selectedDate}.${ext}`;
+                const { error: uploadError } = await supabase.storage
+                    .from('timeline-graphs')
+                    .upload(path, editImageFile, { upsert: true });
+                if (uploadError) throw uploadError;
+                const { data: pub } = supabase.storage.from('timeline-graphs').getPublicUrl(path);
+                imageUrl = `${pub.publicUrl}?v=${Date.now()}`;
+            }
+
+            const newMetrics = { ...trainingMetrics };
+            if (!hasNumericValue && !imageUrl) {
+                if (existingMetrics) {
+                    const { error: delError } = await supabase.from('training_metrics').delete().eq('date', selectedDate);
+                    if (delError) throw delError;
+                    delete newMetrics[selectedDate];
+                }
+            } else {
+                const row = { date: selectedDate, ...parsed, timeline_image_url: imageUrl };
+                const { error: metricsError } = await supabase.from('training_metrics').upsert(row);
+                if (metricsError) throw metricsError;
+                newMetrics[selectedDate] = row;
+            }
+            setTrainingMetrics(newMetrics);
+
             setTrainingData(newData);
             setIncludedManualTime(newIncludedManualTime);
             setIsEditing(false);
         } catch (err) {
             console.error("Save error:", err);
             alert("保存に失敗しました。");
+        } finally {
+            setIsSavingEntry(false);
         }
     };
 
@@ -588,7 +678,80 @@ const BicyclePage = () => {
         ? stripSyncedFieldsFromManualContent(selectedManualContent)
         : selectedManualContent;
     const hasSelectedTraining = Boolean(selectedManualDisplay)
-        || selectedSyncedActivities.length > 0;
+        || selectedSyncedActivities.length > 0
+        || Boolean(trainingMetrics[selectedDate]);
+
+    const selectedMetrics = trainingMetrics[selectedDate] || null;
+
+    const renderMetricsBlock = () => {
+        if (!hasSelectedTraining) return null;
+
+        const statBoxStyle = {
+            background: 'rgba(255, 255, 255, 0.75)',
+            border: '1px solid #c8def2',
+            borderRadius: '6px',
+            padding: '0.5rem 0.6rem'
+        };
+        const statLabelStyle = { fontSize: '0.68rem', fontWeight: 'bold', color: '#5b84a6', letterSpacing: '0.05em' };
+        const statValueStyle = { fontSize: '0.95rem', fontWeight: 'bold', color: '#0f213b', lineHeight: 1.5 };
+
+        return (
+            <div style={{ marginTop: '1rem', borderTop: '1px dashed #c8def2', paddingTop: '0.8rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#5b84a6', letterSpacing: '0.1em' }}>DATA</span>
+                    {selectedMetrics?.ftp != null && (
+                        <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#0f213b', background: 'rgba(200, 222, 242, 0.6)', borderRadius: '4px', padding: '0.15rem 0.6rem' }}>
+                            FTP {selectedMetrics.ftp}W
+                        </span>
+                    )}
+                </div>
+                {selectedMetrics ? (
+                    <>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '0.5rem' }}>
+                            {[
+                                { label: 'POWER', unit: 'W', max: selectedMetrics.power_max, avg: selectedMetrics.power_avg },
+                                { label: 'SPEED', unit: 'km/h', max: selectedMetrics.speed_max, avg: selectedMetrics.speed_avg },
+                                { label: 'HEARTRATE', unit: 'bpm', max: selectedMetrics.hr_max, avg: selectedMetrics.hr_avg },
+                                { label: 'CADENCE', unit: 'rpm', max: selectedMetrics.cadence_max, avg: selectedMetrics.cadence_avg },
+                            ].filter((s) => s.max != null || s.avg != null).map((s) => (
+                                <div key={s.label} style={statBoxStyle}>
+                                    <div style={statLabelStyle}>{s.label} <span style={{ fontWeight: 'normal' }}>({s.unit})</span></div>
+                                    <div style={statValueStyle}>
+                                        {s.max != null && <>MAX <strong>{s.max}</strong><br /></>}
+                                        {s.avg != null && <>AVG <strong>{s.avg}</strong></>}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        {selectedMetrics.timeline_image_url && (
+                            <a href={selectedMetrics.timeline_image_url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', marginTop: '0.8rem' }}>
+                                <img
+                                    src={selectedMetrics.timeline_image_url}
+                                    alt={`${selectedDate} timeline`}
+                                    style={{ width: '100%', borderRadius: '6px', border: '1px solid #c8def2', display: 'block' }}
+                                    loading="lazy"
+                                />
+                            </a>
+                        )}
+                    </>
+                ) : (
+                    <p style={{ margin: 0, color: '#8aa9c4', fontSize: '0.9rem' }}>No Data</p>
+                )}
+            </div>
+        );
+    };
+
+    const metricFields = [
+        { key: 'ftp', label: 'FTP(当時) W', step: '1' },
+        { key: 'power_max', label: 'Power MAX', step: '1' },
+        { key: 'power_avg', label: 'Power AVG', step: '1' },
+        { key: 'speed_max', label: 'Speed MAX', step: '0.1' },
+        { key: 'speed_avg', label: 'Speed AVG', step: '0.1' },
+        { key: 'hr_max', label: 'HR MAX', step: '1' },
+        { key: 'hr_avg', label: 'HR AVG', step: '1' },
+        { key: 'cadence_max', label: 'Cadence MAX', step: '1' },
+        { key: 'cadence_avg', label: 'Cadence AVG', step: '1' },
+    ];
 
     return (
         <div className="rugged-page">
@@ -968,9 +1131,37 @@ const BicyclePage = () => {
                                                     />
                                                     <span>自動記録がある日もTimeを合算</span>
                                                 </label>
+                                                <div style={{ marginTop: '0.8rem' }}>
+                                                    <div style={{ fontSize: '0.78rem', fontWeight: 'bold', color: '#5b84a6', marginBottom: '0.4rem' }}>
+                                                        DATA(空欄のままなら「No Data」表示・実走の日は未入力でOK)
+                                                    </div>
+                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(105px, 1fr))', gap: '0.4rem' }}>
+                                                        {metricFields.map((f) => (
+                                                            <label key={f.key} style={{ display: 'flex', flexDirection: 'column', fontSize: '0.68rem', color: '#5b84a6', fontWeight: 'bold', gap: '0.15rem' }}>
+                                                                {f.label}
+                                                                <input
+                                                                    type="number"
+                                                                    step={f.step}
+                                                                    value={editMetrics[f.key]}
+                                                                    onChange={(e) => setEditMetrics((prev) => ({ ...prev, [f.key]: e.target.value }))}
+                                                                    style={{ padding: '0.3rem', borderRadius: '4px', border: '1px solid #a8cced', outline: 'none', fontFamily: 'inherit', color: '#0f213b', background: 'rgba(255,255,255,0.9)' }}
+                                                                />
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                    <label style={{ display: 'block', marginTop: '0.6rem', fontSize: '0.78rem', color: '#5b84a6', fontWeight: 'bold' }}>
+                                                        タイムライングラフ画像{trainingMetrics[selectedDate]?.timeline_image_url ? '(選択すると差し替え)' : ''}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={(e) => setEditImageFile(e.target.files?.[0] || null)}
+                                                            style={{ display: 'block', marginTop: '0.3rem', fontSize: '0.75rem', color: '#0f213b' }}
+                                                        />
+                                                    </label>
+                                                </div>
                                                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
                                                     <button onClick={() => setIsEditing(false)} style={{ background: 'none', border: '1px solid #c8def2', color: '#5b84a6', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>キャンセル</button>
-                                                    <button onClick={handleSaveClick} style={{ background: '#5b84a6', border: 'none', color: 'white', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>保存</button>
+                                                    <button onClick={handleSaveClick} disabled={isSavingEntry} style={{ background: '#5b84a6', border: 'none', color: 'white', padding: '0.4rem 1rem', borderRadius: '4px', cursor: isSavingEntry ? 'default' : 'pointer', fontWeight: 'bold', opacity: isSavingEntry ? 0.6 : 1 }}>{isSavingEntry ? '保存中...' : '保存'}</button>
                                                 </div>
                                             </div>
                                         ) : hasSelectedTraining ? (
@@ -1002,6 +1193,7 @@ const BicyclePage = () => {
                                                         </div>
                                                     </div>
                                                 ))}
+                                                {renderMetricsBlock()}
                                             </div>
                                         ) : (
                                             <p>この日のトレーニング記録はありません。</p>
