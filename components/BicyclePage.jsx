@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, ComposedChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../supabaseClient';
 import './PersonalPage.css';
 
@@ -723,7 +723,64 @@ const BicyclePage = () => {
                                 </div>
                             ))}
                         </div>
-                        {selectedMetrics.timeline_image_url && (
+                        {selectedMetrics.timeline_data?.w?.length > 0 && (() => {
+                            const tl = selectedMetrics.timeline_data;
+                            const bin = tl.bin || 10;
+                            const rows = tl.w.map((_, i) => ({
+                                tSec: i * bin,
+                                w: tl.w[i],
+                                hr: tl.hr?.[i],
+                                cad: tl.cad?.[i],
+                                spd: tl.spd?.[i],
+                                alt: tl.alt?.[i],
+                            }));
+                            const fmtTime = (sec) => `${Math.floor(sec / 60)}:${String(Math.round(sec % 60)).padStart(2, '0')}`;
+                            const TimelineTooltip = ({ active, payload }) => {
+                                if (!active || !payload || payload.length === 0) return null;
+                                const d = payload[0].payload;
+                                const line = (color, text) => (
+                                    <p style={{ margin: 0, color, fontWeight: 'bold', fontSize: '0.8rem' }}>{text}</p>
+                                );
+                                return (
+                                    <div style={{ background: 'rgba(255,255,255,0.95)', border: '1px solid #c8def2', borderRadius: '4px', padding: '6px 10px' }}>
+                                        <p style={{ margin: 0, color: '#5b84a6', fontSize: '0.75rem', fontWeight: 'bold' }}>{fmtTime(d.tSec)}</p>
+                                        {d.w != null && line('#001c27', `${d.w} W`)}
+                                        {d.hr != null && line('#fa0000', `${d.hr} bpm`)}
+                                        {d.cad != null && line('#0190cf', `${d.cad} rpm`)}
+                                        {d.spd != null && line('#40be59', `${d.spd} km/h`)}
+                                    </div>
+                                );
+                            };
+                            return (
+                                <div style={{ marginTop: '0.8rem', height: '210px', background: 'rgba(255,255,255,0.75)', border: '1px solid #c8def2', borderRadius: '6px', padding: '0.6rem 0.4rem 0 0.2rem' }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <ComposedChart data={rows} margin={{ top: 5, right: 5, left: 5, bottom: 18 }}>
+                                            <XAxis
+                                                dataKey="tSec"
+                                                type="number"
+                                                domain={[0, 'dataMax']}
+                                                stroke="#5b84a6"
+                                                fontSize={10}
+                                                tickFormatter={(sec) => `${Math.round(sec / 60)}min`}
+                                                tickCount={5}
+                                            />
+                                            <YAxis yAxisId="alt" hide domain={[0, 1100]} />
+                                            <YAxis yAxisId="w" hide domain={[0, (max) => Math.max(max * 1.05, 10)]} />
+                                            <YAxis yAxisId="hr" hide domain={[0, (max) => Math.max(max * 1.05, 10)]} />
+                                            <YAxis yAxisId="cad" hide domain={[0, (max) => Math.max(max * 1.05, 10)]} />
+                                            <YAxis yAxisId="spd" hide domain={[0, (max) => Math.max(max * 1.05, 10)]} />
+                                            <Tooltip content={<TimelineTooltip />} />
+                                            <Area yAxisId="alt" dataKey="alt" stroke="#e3e6e7" fill="#eef1f2" isAnimationActive={false} dot={false} activeDot={false} />
+                                            <Line yAxisId="spd" dataKey="spd" stroke="#40be59" strokeWidth={1} dot={false} activeDot={false} isAnimationActive={false} connectNulls />
+                                            <Line yAxisId="cad" dataKey="cad" stroke="#0190cf" strokeWidth={1} dot={false} activeDot={false} isAnimationActive={false} connectNulls />
+                                            <Line yAxisId="hr" dataKey="hr" stroke="#fa0000" strokeWidth={1.2} dot={false} activeDot={false} isAnimationActive={false} connectNulls />
+                                            <Line yAxisId="w" dataKey="w" stroke="#001c27" strokeWidth={1.2} dot={false} activeDot={{ r: 3 }} isAnimationActive={false} connectNulls />
+                                        </ComposedChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            );
+                        })()}
+                        {!selectedMetrics.timeline_data && selectedMetrics.timeline_image_url && (
                             <a href={selectedMetrics.timeline_image_url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', marginTop: '0.8rem' }}>
                                 <img
                                     src={selectedMetrics.timeline_image_url}
