@@ -77,13 +77,13 @@ const VisitorCounter = () => {
                         fontFamily: 'inherit',
                         cursor: pushed ? 'default' : 'pointer',
                         textAlign: 'left',
-                        width: '100%'
+                        width: '100%',
+                        minHeight: '3.9rem',
+                        alignItems: 'center'
                     }}
                 >
                     <div className="link-content">
-                        <span className="link-desc">
-                            {pushed ? 'ありがとう。' : '押してくれてもいいよ。'}
-                        </span>
+                        {pushed && <span className="link-desc">ありがとう。</span>}
                         {pushed && count !== null && (
                             <span
                                 style={{
