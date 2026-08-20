@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import './PersonalPage.css';
+import VisitorCounter from './VisitorCounter';
 import reflexImage from '../assets/thumbnail-reflex.png';
 import profileIcon from '../assets/CtwKBnls_400x400.jpg';
 import diaryImage from '../assets/diary.png';
@@ -91,6 +92,7 @@ const PersonalPage = () => {
           <span className="nav-break"></span>
           <a href="#aboutme" onClick={(e) => scrollToSection(e, 'aboutme')}>[ ABOUT ME ]</a>
           <a href="#career" onClick={(e) => scrollToSection(e, 'career')}>[ CAREER ]</a>
+          <a href="#mystery" onClick={(e) => scrollToSection(e, 'mystery')}>[ ??? ]</a>
         </nav>
       </header>
 
@@ -312,6 +314,8 @@ const PersonalPage = () => {
             </div>
           </div>
         </section>
+
+        <VisitorCounter />
       </main>
 
       <footer className="rugged-footer">

@@ -20,55 +20,102 @@ const getVisitorId = () => {
 
 const VisitorCounter = () => {
     const [count, setCount] = useState(null);
-    const registered = useRef(false);
+    const [pushed, setPushed] = useState(false);
+    const [busy, setBusy] = useState(false);
+    const checked = useRef(false);
 
-    // アクセスした時点で強制的に1カウント。同じ人は何度来ても増えず、取り消しもできない。
+    // 既に押した人かどうかだけ先に調べる(押すまで人数は見せない)
     useEffect(() => {
-        if (!supabase || registered.current) return;
-        registered.current = true;
-
+        if (!supabase || checked.current) return;
+        checked.current = true;
         const id = getVisitorId();
+        if (!id) return;
+        let cancelled = false;
         (async () => {
-            if (id) {
-                await supabase
-                    .from('site_pushes')
-                    .upsert({ visitor_id: id }, { onConflict: 'visitor_id', ignoreDuplicates: true });
-            }
-            const { count: total, error } = await supabase
+            const { data } = await supabase
+                .from('site_pushes')
+                .select('visitor_id')
+                .eq('visitor_id', id)
+                .maybeSingle();
+            if (cancelled || !data) return;
+            setPushed(true);
+            const { count: total } = await supabase
                 .from('site_pushes')
                 .select('visitor_id', { count: 'exact', head: true });
-            if (!error) setCount(total ?? 0);
+            if (!cancelled) setCount(total ?? 0);
         })();
+        return () => { cancelled = true; };
     }, []);
 
-    if (count === null) return null;
+    const handlePush = async () => {
+        if (!supabase || busy || pushed) return;
+        const id = getVisitorId();
+        if (!id) return;
+        setBusy(true);
+        // 同じvisitor_idは主キーで弾かれるので二重に数えられない
+        await supabase
+            .from('site_pushes')
+            .upsert({ visitor_id: id }, { onConflict: 'visitor_id', ignoreDuplicates: true });
+        const { count: total } = await supabase
+            .from('site_pushes')
+            .select('visitor_id', { count: 'exact', head: true });
+        setCount(total ?? 0);
+        setPushed(true);
+        setBusy(false);
+    };
 
     return (
-        <div
-            style={{
-                position: 'fixed',
-                top: '0.6rem',
-                left: '0.6rem',
-                zIndex: 1100,
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: '0.35rem',
-                padding: '0.3rem 0.7rem',
-                borderRadius: '999px',
-                border: '1px solid #c8def2',
-                background: 'rgba(255, 255, 255, 0.92)',
-                color: '#5b84a6',
-                fontFamily: 'inherit',
-                fontSize: '0.7rem',
-                letterSpacing: '0.05em',
-                boxShadow: '0 2px 6px rgba(15, 33, 59, 0.12)',
-                pointerEvents: 'none',
-                userSelect: 'none'
-            }}
-        >
-            <span>VISITORS</span>
-            <span style={{ color: '#0f213b', fontWeight: 'bold', fontSize: '0.85rem' }}>{count}</span>
-        </div>
+        <section id="mystery" className="rugged-section">
+            <h2 className="section-title">???</h2>
+            <div className="section-content">
+                <button
+                    type="button"
+                    className="rugged-link"
+                    onClick={handlePush}
+                    disabled={pushed || busy}
+                    style={{
+                        fontFamily: 'inherit',
+                        cursor: pushed ? 'default' : 'pointer',
+                        textAlign: 'left',
+                        width: '100%'
+                    }}
+                >
+                    <div className="link-content">
+                        <span className="link-desc">
+                            {pushed ? 'ありがとう。' : '押してくれてもいいよ。'}
+                        </span>
+                        {pushed && count !== null && (
+                            <span
+                                style={{
+                                    marginTop: '0.4rem',
+                                    fontFamily: "'JetBrains Mono', monospace",
+                                    fontWeight: 700,
+                                    fontSize: '1.4rem',
+                                    color: '#0f213b'
+                                }}
+                            >
+                                {count.toLocaleString()}
+                                <span style={{ fontSize: '0.8rem', fontWeight: 400, marginLeft: '0.35rem', color: '#5b84a6' }}>
+                                    人が押した
+                                </span>
+                            </span>
+                        )}
+                    </div>
+                    <span className="link-arrow" aria-hidden="true">
+                        {pushed ? (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M20 6L9 17l-5-5" />
+                            </svg>
+                        ) : (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M12 16v-4M12 8h.01" />
+                            </svg>
+                        )}
+                    </span>
+                </button>
+            </div>
+        </section>
     );
 };
 
