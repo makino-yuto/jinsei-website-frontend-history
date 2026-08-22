@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import './PersonalPage.css';
 import VisitorCounter from './VisitorCounter';
 import reflexImage from '../assets/thumbnail-reflex.png';
-import profileIcon from '../assets/CtwKBnls_400x400.jpg';
+import profileIcon from '../assets/profile-icon.png';
 import diaryImage from '../assets/diary.png';
 import pixImage from '../assets/PIX.png';
 
