@@ -901,8 +901,9 @@ const BicyclePage = () => {
                                 <div className="career-period">2026/9 - CURRENT</div>
                                 <div className="career-details">
                                     <p className="biography" style={{ color: "#4f6f8f", lineHeight: "1.8", margin: 0, marginTop: "0.2rem" }}>
-                                        自転車: Bianchi OLTRE XR4 DISC<br />
+                                        フレーム: Bianchi OLTRE XR4 DISC<br />
                                         コンポーネント: SHIMANO 105 Di2 12SP<br />
+                                        ホイール: FULCRUM Racing 400 DB<br />
                                         スマートトレーナー: ThinkRider X2Max<br />
                                         ペダル: SHIMANO PD-EH500<br />
                                         シューズ: SHIMANO XC1 (SH-XC102)
