@@ -898,7 +898,19 @@ const BicyclePage = () => {
                     <div className="section-content">
                         <div className="career-list">
                             <div className="career-item">
-                                <div className="career-period">2026/8 - CURRENT</div>
+                                <div className="career-period">2026/9 - CURRENT</div>
+                                <div className="career-details">
+                                    <p className="biography" style={{ color: "#4f6f8f", lineHeight: "1.8", margin: 0, marginTop: "0.2rem" }}>
+                                        自転車: Bianchi OLTRE XR4 DISC<br />
+                                        コンポーネント: SHIMANO 105 Di2 12SP<br />
+                                        スマートトレーナー: ThinkRider X2Max<br />
+                                        ペダル: SHIMANO PD-EH500<br />
+                                        シューズ: SHIMANO XC1 (SH-XC102)
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="career-item">
+                                <div className="career-period">2026/8 - 2026/9</div>
                                 <div className="career-details">
                                     <p className="biography" style={{ color: "#4f6f8f", lineHeight: "1.8", margin: 0, marginTop: "0.2rem" }}>
                                         自転車: NESTO LIMIT 2<br />
