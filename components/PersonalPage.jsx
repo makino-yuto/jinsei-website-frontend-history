@@ -9,7 +9,7 @@ import pixImage from '../assets/PIX.png';
 const PersonalPage = () => {
   const licenseData = [
     {
-      period: '2026/04/19',
+      period: '2026.04.19',
       title: 'TOEIC® Listening & Reading 625点',
       type: 'license',
       embedVideo: "https://www.youtube.com/embed/GBfMXbzlba4"
