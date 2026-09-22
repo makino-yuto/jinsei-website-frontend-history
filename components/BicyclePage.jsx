@@ -670,11 +670,11 @@ const BicyclePage = () => {
     ];
 
     const videos = [
-        { period: '2025/11', title: '名古屋→浜松', embedVideo: 'https://www.youtube.com/embed/9sUUwfLeDj8' },
-        { period: '2025/11', title: 'LavenderUnicorn', embedVideo: 'https://www.youtube.com/embed/4KOQAiqXXoM' },
-        { period: '2025/11', title: '20min FTP test', embedVideo: 'https://www.youtube.com/embed/d7sJJgeyqUU' },
+        { period: '2025.11.02', title: '名古屋→浜松', embedVideo: 'https://www.youtube.com/embed/9sUUwfLeDj8' },
+        { period: '2025.11.14', title: 'LavenderUnicorn', embedVideo: 'https://www.youtube.com/embed/4KOQAiqXXoM' },
+        { period: '2025.11.21', title: '20min FTP test', embedVideo: 'https://www.youtube.com/embed/d7sJJgeyqUU' },
         { period: '2026.09.20', title: '【50万】初ロードバイクを納車しました！', embedVideo: 'https://www.youtube.com/embed/bACktzMb5Y4' },
-        { period: '2026/10', title: 'もてぎエンデューロ フルマラソンライド', planned: true },
+        { period: '2026.10', title: 'もてぎエンデューロ フルマラソンライド', planned: true },
     ];
 
 

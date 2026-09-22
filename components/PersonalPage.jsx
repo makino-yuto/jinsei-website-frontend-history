@@ -15,19 +15,19 @@ const PersonalPage = () => {
       embedVideo: "https://www.youtube.com/embed/GBfMXbzlba4"
     },
     {
-      period: '2026/02/16',
+      period: '2026.02.16',
       title: '基本情報技術者(FE)',
       type: 'license',
       embedVideo: "https://www.youtube.com/embed/z4AopNHGv3Q"
     },
     {
-      period: '2026/11',
+      period: '2026.11',
       title: '応用情報技術者 (AP)',
       type: 'license',
       planned: true
     },
     {
-      period: '2027/02',
+      period: '2027.02',
       title: 'データベーススペシャリスト',
       type: 'license',
       planned: true
