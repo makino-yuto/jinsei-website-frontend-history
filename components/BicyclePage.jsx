@@ -636,6 +636,7 @@ const BicyclePage = () => {
         { date: '2026/02/26', FTP: 3.750, timestamp: new Date('2026/02/26').getTime() },
         { date: '2026/07/05', FTP: 3.06,  timestamp: new Date('2026/07/05').getTime() },
         { date: '2026/08/22', FTP: 3.844, timestamp: new Date('2026/08/22').getTime() },
+        { date: '2026/09/23', FTP: 3.922, timestamp: new Date('2026/09/23').getTime() },
     ];
 
     const ftpTicks = [
@@ -643,22 +644,23 @@ const BicyclePage = () => {
         new Date('2026/01/01').getTime(),
         new Date('2026/04/01').getTime(),
         new Date('2026/07/01').getTime(),
-        new Date('2026/10/01').getTime()
+        new Date('2026/10/01').getTime(),
+        new Date('2027/01/01').getTime()
     ];
 
     const peakPowerData = [
-        { time: '5 s', W: 671, Wkg: 10.48, date: '2026/7/4 20:11:12' },
-        { time: '15 s', W: 469, Wkg: 7.33, date: '2026/7/19 20:36:34' },
-        { time: '30 s', W: 378, Wkg: 5.91, date: '2026/7/28 20:28:28' },
-        { time: '1 min', W: 324, Wkg: 5.06, date: '2026/6/26 19:02:31' },
-        { time: '3 min', W: 275, Wkg: 4.30, date: '2026/8/10 21:53:45' },
-        { time: '5 min', W: 274, Wkg: 4.28, date: '2026/8/10 21:53:45' },
-        { time: '10 min', W: 264, Wkg: 4.12, date: '2026/8/22 8:29:28' },
-        { time: '12 min', W: 263, Wkg: 4.11, date: '2026/8/22 8:29:28' },
-        { time: '15 min', W: 261, Wkg: 4.08, date: '2026/8/22 8:29:28' },
-        { time: '20 min', W: 259, Wkg: 4.05, date: '2026/8/22 8:29:28' },
-        { time: '30 min', W: 213, Wkg: 3.33, date: '2026/8/22 8:29:28' },
-        { time: '40 min', W: 202, Wkg: 3.16, date: '2026/8/22 8:29:28' },
+        { time: '5 s', W: 705, Wkg: 11.02, date: '2026/9/16 19:26:42' },
+        { time: '15 s', W: 570, Wkg: 8.91, date: '2026/9/18 14:51:02' },
+        { time: '30 s', W: 462, Wkg: 7.22, date: '2026/9/18 14:51:02' },
+        { time: '1 min', W: 365, Wkg: 5.70, date: '2026/9/18 14:51:02' },
+        { time: '3 min', W: 293, Wkg: 4.58, date: '2026/9/18 14:51:02' },
+        { time: '5 min', W: 284, Wkg: 4.44, date: '2026/9/23 13:10:16' },
+        { time: '10 min', W: 282, Wkg: 4.41, date: '2026/9/23 13:10:16' },
+        { time: '12 min', W: 281, Wkg: 4.39, date: '2026/9/23 13:10:16' },
+        { time: '15 min', W: 281, Wkg: 4.39, date: '2026/9/23 13:10:16' },
+        { time: '20 min', W: 262, Wkg: 4.14, date: '2026/9/23 13:10:16' },
+        { time: '30 min', W: 227, Wkg: 3.55, date: '2026/9/18 14:51:02' },
+        { time: '40 min', W: 227, Wkg: 3.55, date: '2026/9/17 19:57:06' },
     ];
 
     const tournaments = [
@@ -999,7 +1001,7 @@ const BicyclePage = () => {
                                     <XAxis
                                         dataKey="timestamp"
                                         type="number"
-                                        domain={[new Date('2025/10/01').getTime(), new Date('2026/10/01').getTime()]}
+                                        domain={[new Date('2025/10/01').getTime(), new Date('2027/01/01').getTime()]}
                                         ticks={ftpTicks}
                                         stroke="#5b84a6"
                                         fontSize={12}
