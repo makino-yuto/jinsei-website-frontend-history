@@ -83,22 +83,8 @@ const VisitorCounter = () => {
                     }}
                 >
                     <div className="link-content">
-                        {pushed && <span className="link-desc">ありがとう。</span>}
                         {pushed && count !== null && (
-                            <span
-                                style={{
-                                    marginTop: '0.4rem',
-                                    fontFamily: "'JetBrains Mono', monospace",
-                                    fontWeight: 700,
-                                    fontSize: '1.4rem',
-                                    color: '#0f213b'
-                                }}
-                            >
-                                {count.toLocaleString()}
-                                <span style={{ fontSize: '0.8rem', fontWeight: 400, marginLeft: '0.35rem', color: '#5b84a6' }}>
-                                    人が押した
-                                </span>
-                            </span>
+                            <span className="link-desc">{count.toLocaleString()}人が押した</span>
                         )}
                     </div>
                     <span className="link-arrow" aria-hidden="true">
