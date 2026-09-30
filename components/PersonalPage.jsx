@@ -111,6 +111,7 @@ const PersonalPage = () => {
       <header className="rugged-header">
         <nav className="rugged-nav">
           <a href="#social" onClick={(e) => scrollToSection(e, 'social')}>[ SOCIAL ]</a>
+          <a href="#links" onClick={(e) => scrollToSection(e, 'links')}>[ LINKS ]</a>
           <a href="#license" onClick={(e) => scrollToSection(e, 'license')}>[ LICENSE ]</a>
           <a href="#works" onClick={(e) => scrollToSection(e, 'works')}>[ WORKS ]</a>
           <span className="nav-break"></span>
