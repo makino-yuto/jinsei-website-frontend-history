@@ -136,6 +136,7 @@ body {
 
   #license .section-content,
   #works .section-content,
+  #social .section-content,
   #links .section-content,
   #videos .section-content {
     grid-template-columns: repeat(3, 1fr);
@@ -220,6 +221,43 @@ body {
 
 .zenn-icon .link-icon svg {
   fill: #3ea8ff;
+}
+
+.avatar-icon {
+  align-items: center;
+}
+
+.link-content-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.link-content-row .link-icon {
+  margin-bottom: 0;
+}
+
+.link-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #1e3857;
+}
+
+.link-icon img.link-avatar,
+.avatar-icon .link-icon svg {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.link-icon img.link-avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  transition: all 0.2s;
+}
+
+.avatar-icon .link-icon svg {
+  fill: #000000;
 }
 
 .rugged-link:hover .link-icon svg {

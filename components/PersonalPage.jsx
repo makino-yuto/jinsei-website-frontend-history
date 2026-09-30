@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './PersonalPage.css';
 import VisitorCounter from './VisitorCounter';
@@ -5,6 +6,29 @@ import reflexImage from '../assets/thumbnail-reflex.png';
 import profileIcon from '../assets/profile-icon.png';
 import diaryImage from '../assets/diary.png';
 import pixImage from '../assets/PIX.png';
+
+// Xのアイコンを unavatar.io 経由で取得する。相手がアイコンを変えれば自動で追従する。
+// 取得に失敗したときはXのロゴを出す。
+const XAvatar = ({ handle }) => {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+      </svg>
+    );
+  }
+  return (
+    <img
+      className="link-avatar"
+      src={`https://unavatar.io/x/${handle}`}
+      alt=""
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+    />
+  );
+};
 
 const PersonalPage = () => {
   const licenseData = [
@@ -86,7 +110,7 @@ const PersonalPage = () => {
     <div className="rugged-page">
       <header className="rugged-header">
         <nav className="rugged-nav">
-          <a href="#links" onClick={(e) => scrollToSection(e, 'links')}>[ LINKS ]</a>
+          <a href="#social" onClick={(e) => scrollToSection(e, 'social')}>[ SOCIAL ]</a>
           <a href="#license" onClick={(e) => scrollToSection(e, 'license')}>[ LICENSE ]</a>
           <a href="#works" onClick={(e) => scrollToSection(e, 'works')}>[ WORKS ]</a>
           <span className="nav-break"></span>
@@ -97,8 +121,8 @@ const PersonalPage = () => {
       </header>
 
       <main className="rugged-main">
-        <section id="links" className="rugged-section">
-          <h2 className="section-title">LINKS</h2>
+        <section id="social" className="rugged-section">
+          <h2 className="section-title">SOCIAL</h2>
           <div className="section-content">
             <a href="https://www.youtube.com/@zinseich" target="_blank" rel="noopener noreferrer" className="rugged-link youtube-icon">
               <div className="link-content">
@@ -168,6 +192,25 @@ const PersonalPage = () => {
                   </svg>
                 </span>
                 <span className="link-desc">技術的なこと。</span>
+              </div>
+              <span className="link-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M7 17L17 7M17 7H7M17 7V17" />
+                </svg>
+              </span>
+            </a>
+          </div>
+        </section>
+
+        <section id="links" className="rugged-section">
+          <h2 className="section-title">LINKS</h2>
+          <div className="section-content">
+            <a href="https://shiori-02-14.github.io/Homepage/" target="_blank" rel="noopener noreferrer" className="rugged-link avatar-icon">
+              <div className="link-content link-content-row">
+                <span className="link-icon">
+                  <XAvatar handle="shiori_02_14_" />
+                </span>
+                <span className="link-name">しおり🔖</span>
               </div>
               <span className="link-arrow">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
