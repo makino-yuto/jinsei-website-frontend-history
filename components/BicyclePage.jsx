@@ -667,7 +667,7 @@ const BicyclePage = () => {
         {
             period: '2026/10',
             title: 'もてぎエンデューロ フルマラソンライド',
-            result: '出場予定'
+            result: '1:04:34 / 39位(464人中) / 年代別5位(20〜24歳)'
         }
     ];
 
@@ -676,7 +676,7 @@ const BicyclePage = () => {
         { period: '2025.11.14', title: 'LavenderUnicorn', embedVideo: 'https://www.youtube.com/embed/4KOQAiqXXoM' },
         { period: '2025.11.21', title: '20min FTP test', embedVideo: 'https://www.youtube.com/embed/d7sJJgeyqUU' },
         { period: '2026.09.20', title: '【50万】初ロードバイクを納車しました！', embedVideo: 'https://www.youtube.com/embed/bACktzMb5Y4' },
-        { period: '2026.10', title: 'もてぎエンデューロ フルマラソンライド', planned: true },
+        { period: '2026.10.10', title: '【初レースで勝利を掴め】もてぎエンデューロフルマラソンライド2026！', embedVideo: 'https://www.youtube.com/embed/Vd3PMeFnu_A' },
     ];
 
 
