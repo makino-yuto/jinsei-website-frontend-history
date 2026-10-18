@@ -604,15 +604,17 @@ const BicyclePage = () => {
             const hasTraining = !!trainingData[dateStr]
                 || (syncedTrainingData[dateStr]?.length || 0) > 0;
             const isSelected = dateStr === selectedDate;
+            const t = new Date();
+            const isToday = dateStr === `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+            const wd = (firstDay + i - 1) % 7;
             days.push(
                 <div
                     key={i}
                     data-date={dateStr}
-                    className={`calendar-day ${hasTraining ? 'has-training' : ''} ${isSelected ? 'selected' : ''}`}
+                    className={`calendar-day ${hasTraining ? 'has-training' : ''} ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''} ${wd === 0 ? 'sun' : wd === 6 ? 'sat' : ''}`}
                     onClick={() => setSelectedDate(dateStr)}
                 >
                     <span className="day-number">{i}</span>
-                    {hasTraining && <span className="training-dot"></span>}
                 </div>
             );
         }

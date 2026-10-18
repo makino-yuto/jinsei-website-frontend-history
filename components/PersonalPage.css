@@ -596,23 +596,38 @@ body {
 }
 
 .calendar-day.selected {
-  background: #5b84a6;
-  color: white;
+  font-weight: bold;
+}
+
+/* 乗った日はサイト背景と同じ青 */
+.calendar-day.has-training {
+  background: #e3effa;
+}
+
+.calendar-grid.day-headers > div:first-child,
+.calendar-day.sun {
+  color: #b83232;
+}
+
+.calendar-grid.day-headers > div:last-child,
+.calendar-day.sat {
+  color: #2c64a8;
+}
+
+.calendar-day.today {
   border-color: #5b84a6;
 }
 
-.calendar-day.selected .training-dot {
-  background: white;
+.calendar-day.selected,
+.calendar-day.selected.today {
+  border: 2px solid #0f213b;
 }
 
-.training-dot {
-  width: 5px;
-  height: 5px;
-  background: #ca1414;
-  border-radius: 50%;
-  position: absolute;
-  bottom: 8px;
+.calendar-day.selected:not(.has-training) {
+  background: rgba(255, 255, 255, 0.9);
 }
+
+
 
 .training-details-container {
   display: flex;
@@ -731,4 +746,3 @@ body {
     padding-right: 0.55rem !important;
   }
 }
-
