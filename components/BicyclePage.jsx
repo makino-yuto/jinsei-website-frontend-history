@@ -596,7 +596,7 @@ const BicyclePage = () => {
         const days = [];
 
         for (let i = 0; i < firstDay; i++) {
-            days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+            days.push(<div key={`${year}-${month}-empty-${i}`} className="calendar-day empty"></div>);
         }
 
         for (let i = 1; i <= daysInMonth; i++) {
@@ -609,7 +609,7 @@ const BicyclePage = () => {
             const wd = (firstDay + i - 1) % 7;
             days.push(
                 <div
-                    key={i}
+                    key={dateStr}
                     data-date={dateStr}
                     className={`calendar-day ${hasTraining ? 'has-training' : ''} ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''} ${wd === 0 ? 'sun' : wd === 6 ? 'sat' : ''}`}
                     onClick={() => setSelectedDate(dateStr)}
@@ -622,7 +622,7 @@ const BicyclePage = () => {
         // 月によってカレンダーの高さが変わらないように42枠（6週分）になるまで埋める
         const remainingDays = 42 - days.length;
         for (let i = 0; i < remainingDays; i++) {
-            days.push(<div key={`empty-end-${i}`} className="calendar-day empty"></div>);
+            days.push(<div key={`${year}-${month}-empty-end-${i}`} className="calendar-day empty"></div>);
         }
 
         return days;
