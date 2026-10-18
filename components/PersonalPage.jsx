@@ -209,7 +209,7 @@ const PersonalPage = () => {
                 <span className="link-icon">
                   <XAvatar handle="ainemut" />
                 </span>
-                <span className="link-name">nemut.ai</span>
+                <span className="link-name">Masahiro</span>
               </div>
               <span className="link-arrow">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
