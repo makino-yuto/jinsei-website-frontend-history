@@ -211,6 +211,10 @@ body {
   fill: #000000;
 }
 
+.instagram-icon .link-icon svg {
+  fill: #e4405f;
+}
+
 .note-icon .link-icon svg {
   fill: #000000;
 }
