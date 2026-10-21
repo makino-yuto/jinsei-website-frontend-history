@@ -212,7 +212,7 @@ body {
 }
 
 .instagram-icon .link-icon svg {
-  fill: #e4405f;
+  fill: url(#ig-grad);
 }
 
 .note-icon .link-icon svg {
