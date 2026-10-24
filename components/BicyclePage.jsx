@@ -969,7 +969,7 @@ const BicyclePage = () => {
                 <section id="videos" className="rugged-section">
                     <h2 className="section-title">VIDEOS</h2>
                     <div className="section-content">
-                        {videos.map((v, idx) => (
+                        {[...videos].sort((a, b) => b.period.localeCompare(a.period)).map((v, idx) => (
                             <div key={idx} className={`rugged-card ${v.planned ? 'planned-card' : ''}`}>
                                 <div className="card-header">
                                     <span className="card-period">{v.period}</span>
