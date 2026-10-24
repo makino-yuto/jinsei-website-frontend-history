@@ -639,6 +639,7 @@ const BicyclePage = () => {
         { date: '2026/07/05', FTP: 3.06,  timestamp: new Date('2026/07/05').getTime() },
         { date: '2026/08/22', FTP: 3.844, timestamp: new Date('2026/08/22').getTime() },
         { date: '2026/09/23', FTP: 3.922, timestamp: new Date('2026/09/23').getTime() },
+        { date: '2026/10/24', FTP: 4.281, timestamp: new Date('2026/10/24').getTime() },
     ];
 
     const ftpTicks = [
@@ -651,18 +652,18 @@ const BicyclePage = () => {
     ];
 
     const peakPowerData = [
-        { time: '5 s', W: 705, Wkg: 11.02, date: '2026/9/16 19:26:42' },
-        { time: '15 s', W: 570, Wkg: 8.91, date: '2026/9/18 14:51:02' },
-        { time: '30 s', W: 462, Wkg: 7.22, date: '2026/9/18 14:51:02' },
-        { time: '1 min', W: 365, Wkg: 5.70, date: '2026/9/18 14:51:02' },
-        { time: '3 min', W: 293, Wkg: 4.58, date: '2026/9/18 14:51:02' },
-        { time: '5 min', W: 284, Wkg: 4.44, date: '2026/9/23 13:10:16' },
-        { time: '10 min', W: 282, Wkg: 4.41, date: '2026/9/23 13:10:16' },
-        { time: '12 min', W: 281, Wkg: 4.39, date: '2026/9/23 13:10:16' },
-        { time: '15 min', W: 281, Wkg: 4.39, date: '2026/9/23 13:10:16' },
-        { time: '20 min', W: 262, Wkg: 4.14, date: '2026/9/23 13:10:16' },
-        { time: '30 min', W: 227, Wkg: 3.55, date: '2026/9/18 14:51:02' },
-        { time: '40 min', W: 227, Wkg: 3.55, date: '2026/9/17 19:57:06' },
+        { time: '5 s', W: 764, Wkg: 12.13, date: '2026/10/19 20:28:26' },
+        { time: '15 s', W: 575, Wkg: 9.13, date: '2026/10/19 20:28:26' },
+        { time: '30 s', W: 462, Wkg: 7.33, date: '2026/9/18 14:51:02' },
+        { time: '1 min', W: 365, Wkg: 5.79, date: '2026/9/18 14:51:02' },
+        { time: '3 min', W: 326, Wkg: 5.17, date: '2026/10/5 19:32:51' },
+        { time: '5 min', W: 307, Wkg: 4.87, date: '2026/10/1 21:53:49' },
+        { time: '10 min', W: 288, Wkg: 4.57, date: '2026/10/24 19:35:49' },
+        { time: '12 min', W: 286, Wkg: 4.54, date: '2026/10/24 19:35:49' },
+        { time: '15 min', W: 285, Wkg: 4.52, date: '2026/10/24 19:35:49' },
+        { time: '20 min', W: 284, Wkg: 4.51, date: '2026/10/24 19:35:49' },
+        { time: '30 min', W: 235, Wkg: 3.73, date: '2026/10/24 19:35:49' },
+        { time: '40 min', W: 229, Wkg: 3.63, date: '2026/9/28 15:03:26' },
     ];
 
     const tournaments = [
